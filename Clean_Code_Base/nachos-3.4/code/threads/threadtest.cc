@@ -47,5 +47,7 @@ ThreadTest()
 
     t->Fork(SimpleThread, 1);
     SimpleThread(0);
+
+    // test
 }
 
