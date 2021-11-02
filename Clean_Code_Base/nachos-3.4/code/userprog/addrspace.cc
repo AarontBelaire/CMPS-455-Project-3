@@ -76,7 +76,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     	SwapHeader(&noffH);
     ASSERT(noffH.noffMagic == NOFFMAGIC);
 
-// how big is address space?
+    // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
 			+ UserStackSize;	// we need to increase the size
 						// to leave room for the stack
@@ -90,7 +90,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
-// first, set up the translation 
+    // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
@@ -98,7 +98,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 	//pageTable[i].physicalPage = i;
-
+    BitMap *bitMap = new BitMap(NumPhysPages);
 	// Will cause pageFaultException and needs to be handled in exception.cc
 	pageTable[i].valid = FALSE; // was previously set to TRUE
 
