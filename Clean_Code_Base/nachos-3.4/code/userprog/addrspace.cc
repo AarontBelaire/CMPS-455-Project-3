@@ -60,7 +60,12 @@ SwapHeader (NoffHeader *noffH)
 //	"executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable)
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+
+AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
+
+// End code changes by DUSTIN SIMONEAUX // ------------------------------------
+
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -89,7 +94,16 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i].physicalPage = i;
+	
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+
+	//pageTable[i].physicalPage = i;
+
+	// Will cause pageFaultException and needs to be handled in exception.cc
+	pageTable[i].valid = FALSE; // was previously set to TRUE
+
+// End code changes by DUSTIN SIMONEAUX // ------------------------------------
+
 	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
