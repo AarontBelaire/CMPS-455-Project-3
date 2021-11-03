@@ -114,7 +114,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
                                        // pages to be read-only
     }
 
-    // zero out the entire address space, to zero the unitialized data segment
+    // zero out the entire address space, to zero the uninitialized data segment
     // and the stack segment
     bzero(machine->mainMemory, size);
 
