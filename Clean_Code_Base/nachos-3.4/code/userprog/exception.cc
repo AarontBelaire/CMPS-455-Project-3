@@ -293,7 +293,7 @@ ExceptionHandler(ExceptionType which)
 			variable to keep track of it). There is already stats->numPageFaults
 			defined which you can simply increase during page fault.
 		*/
-	
+
 
 		/* 2.)
 			Get the address that caused page fault,

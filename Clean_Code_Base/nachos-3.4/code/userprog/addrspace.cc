@@ -71,7 +71,17 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     if ((noffH.noffMagic != NOFFMAGIC) && 
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
     	SwapHeader(&noffH);
-    ASSERT(noffH.noffMagic == NOFFMAGIC);
+    // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+    if (noffH.noffMagic != NOFFMAGIC) 
+    {
+        Exit(-1);
+        printf("Exiting Because it is not a noff?");
+    }
+    else 
+    {
+        printf
+    }
+// End code changes by DUSTIN SIMONEAUX // -------------------------------
 
 // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
@@ -80,19 +90,23 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
-    ASSERT(numPages <= NumPhysPages);		// check we're not trying
-						// to run anything too big --
-						// at least until we have
-						// virtual memory
-
+// Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+    if (numPages > NumPhysPages)    
+	{	// check we're not trying to run anything too big --
+		// at least until we have virtual memory 
+        printf("Error: Number of pages cannot be > number of physical pages");
+        Exit(-1);
+        // MAYBE??? delete pageTable; 
+    }					                    
+// End code changes by DUSTIN SIMONEAUX // -------------------------------
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i].physicalPage = i;
-	pageTable[i].valid = TRUE;
+	//pageTable[i].physicalPage = i; // Removing this since its no longer 1:1
+	pageTable[i].valid = FALSE; // CHANGED FROM TRUE
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
 	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 

@@ -21,7 +21,7 @@
 class AddrSpace {
   public:
   // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-    AddrSpace(OpenFile *executable);	
+    AddrSpace(OpenFile *executable, int thread_id);	
   // End code changes by DUSTIN SIMONEAUX // ------------------------------------ 
           // Create an address space,
 					// initializing it with the program
