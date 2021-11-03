@@ -97,14 +97,16 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 	
 // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 
-	//pageTable[i].physicalPage = i;
-    BitMap *bitMap = new BitMap(NumPhysPages);
-	// Will cause pageFaultException and needs to be handled in exception.cc
-	pageTable[i].valid = FALSE; // was previously set to TRUE
+	    //pageTable[i].physicalPage = i;
+    	BitMap *bitMap = new BitMap(NumPhysPages);
+			
+		bzero(bitMap, size); // SOMEONE VERIFY IF THIS IS THE CORRECT WAY TO USE THIS
+
+        // Will cause pageFaultException and needs to be handled in exception.cc
+        pageTable[i].valid = FALSE; // was previously set to TRUE
 
 // End code changes by DUSTIN SIMONEAUX // ------------------------------------
 
-	pageTable[i].valid = TRUE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
 	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
