@@ -75,8 +75,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     if (noffH.noffMagic != NOFFMAGIC) 
     {
+        printf("Exiting: Not in NOFF format.\n");
         Exit(-1);
-        printf("Exiting Because it is not a noff?\n");
     }
     else 
     {
@@ -92,8 +92,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     if (numPages > NumPhysPages)    
-	{	// check we're not trying to run anything too big --
-		// at least until we have virtual memory 
+	{//check not trying to run anything too big - until we have virtual memory 
+		// 
         printf("Error: Number of pages cannot be > number of physical pages\n");
         Exit(-1);
         // MAYBE??? delete pageTable; 
