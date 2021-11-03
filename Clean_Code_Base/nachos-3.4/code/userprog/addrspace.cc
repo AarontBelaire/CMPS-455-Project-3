@@ -85,9 +85,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // how big is address space?
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
-			+ UserStackSize;	// we need to increase the size
-						// to leave room for the stack
+    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; 
+	// we need to increase the size to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
@@ -116,8 +115,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
-					// a separate page, we could set its 
-					// pages to be read-only
+			// a separate page, we could set its pages to be read-only
     }
     
 // zero out the entire address space, to zero the unitialized data segment 
