@@ -19,6 +19,9 @@ Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
 int threadChoice;
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+BitMap *bitMap = new BitMap(NumPhysPages);
+// End code changes by DUSTIN SIMONEAUX // ------------------------------------
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif
@@ -143,7 +146,7 @@ Initialize(int argc, char **argv)
     scheduler = new Scheduler();		// initialize the ready queue
     if (randomYield)				// start the timer (if needed)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
-
+	
     threadToBeDestroyed = NULL;
 	
 	

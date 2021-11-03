@@ -31,6 +31,9 @@ extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
 extern int threadChoice;
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+extern BitMap *bitMap; // Declaring a global bitmap variable
+// END code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 #ifdef USER_PROGRAM
 #include "machine.h"

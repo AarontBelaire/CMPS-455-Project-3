@@ -193,7 +193,9 @@ ExceptionHandler(ExceptionType which)
 
 				// Calculate needed memory space
 				AddrSpace *space;
-				space = new AddrSpace(executable);
+				// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+				space = new AddrSpace(executable, threadID);
+				// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 				delete executable;
 				// Do we have enough space?
 				if(!currentThread->killNewChild)	// If so...
@@ -282,6 +284,34 @@ ExceptionHandler(ExceptionType which)
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
 		break;
+
+// Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
+
+	case PageFaultException :
+		/* 1.)
+			Increase pageFault stats ( You can create a separate page fault
+			variable to keep track of it). There is already stats->numPageFaults
+			defined which you can simply increase during page fault.
+		*/
+	
+
+		/* 2.)
+			Get the address that caused page fault,
+				badVAddr = machine->ReadRegister(BadVAddrReg);
+		*/
+
+		/* 3.)
+			Calculate the virtual page, badVPage = badVAddr/PageSize.
+		*/
+
+		/* 4.)
+			Find a physical page:
+						- use bitMap->find()
+						- if no free physical page is found depending on -V option
+		*/
+
+// End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
+
 	case BusErrorException :
 		printf("ERROR: BusErrorException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")

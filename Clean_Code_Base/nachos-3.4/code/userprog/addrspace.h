@@ -20,7 +20,10 @@
 
 class AddrSpace {
   public:
-    AddrSpace(OpenFile *executable);	// Create an address space,
+  // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+    AddrSpace(OpenFile *executable);	
+  // End code changes by DUSTIN SIMONEAUX // ------------------------------------ 
+          // Create an address space,
 					// initializing it with the program
 					// stored in the file "executable"
     ~AddrSpace();			// De-allocate an address space

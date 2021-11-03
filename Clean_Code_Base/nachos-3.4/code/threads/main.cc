@@ -93,10 +93,17 @@ main(int argc, char **argv)
             printf (copyright);
 #ifdef USER_PROGRAM
         if (!strcmp(*argv, "-x")) {        	// run a user program
-	    ASSERT(argc > 1);
-            StartProcess(*(argv + 1));
-		printf("I'm here");
-            argCount = 2;
+
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+	        //ASSERT(argc > 1);
+            if (argc > 1)
+              	StartProcess(*(argv + 1));
+            else
+            {
+		        printf("I'm here");
+              	argCount = 2;
+            }       
+// End code changes by DUSTIN SIMONEAUX // ------------------------------------
         } else if (!strcmp(*argv, "-c")) {      // test the console
 	    if (argc == 1)
 	        ConsoleTest(NULL, NULL);
