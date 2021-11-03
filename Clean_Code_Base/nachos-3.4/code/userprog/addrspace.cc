@@ -105,8 +105,12 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+
+// Begin code changes by DUSTIN SIMONEAUX // -------------------------------
 	//pageTable[i].physicalPage = i; // Removing this since its no longer 1:1
 	pageTable[i].valid = FALSE; // CHANGED FROM TRUE
+// End code changes by DUSTIN SIMONEAUX // ---------------------------------
+
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
 	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
