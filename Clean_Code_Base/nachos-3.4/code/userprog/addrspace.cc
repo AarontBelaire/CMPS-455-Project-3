@@ -81,7 +81,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     }
     else 
     {
-        printf("");
+        
     }
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
@@ -91,32 +91,33 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
-      //This will create a file and allocate space
-    //int buffer = noffH.code.size + noffH.initData.size + noffH.uninitData.size;
-    //char *swapFilename = new char[100];
-    //fileSystem->Create(swapFilename, buffer); 
-    //char *filename = thread_id;
-
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     if (numPages > NumPhysPages)    
-	{//check not trying to run anything too big - until we have virtual memory 
-		// 
-        printf("Error: Number of pages cannot be > number of physical pages\n");
+	{//check not trying to run anything too big - until we have virtual memory  
+        printf("Error: Not enough memory to run.\n");
         Exit(-1);
         // MAYBE??? 
         //delete pageTable; 
     }					                    
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
-
+    
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
-    // first, set up the translation 
+
+    // first, set up the translation  
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
 	    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 
         // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-        pageTable[i].physicalPage = i; // Removing this since its no longer 1:1
+        int freePage = bitMap->Find();
+        if (freePage) 
+        {
+            bitMap->Clear(i);
+        }
+        printf("FreePage: %d\n", freePage);
+        printf("AddrSpace: Number of pages: %d\n", numPages);
+        pageTable[i].physicalPage = freePage; // changed this since its no longer 1:1
         pageTable[i].valid = TRUE; 
         //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
         // End code changes by DUSTIN SIMONEAUX // ---------------------------------
@@ -129,7 +130,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
+    //bzero(machine->mainMemory, size);
     //memset(buffer, '-', buffer_size);
 
 // then, copy in the code and data segments into memory

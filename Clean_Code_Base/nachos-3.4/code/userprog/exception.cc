@@ -215,7 +215,20 @@ ExceptionHandler(ExceptionType which)
 					machine->WriteRegister(2, -1 * (threadID + 1));	// Return an error code
 					currentThread->killNewChild = false;	// Reset our variable
 				}
-				break;	// Get out.
+
+				/* 
+				int pc; 
+				pc = machine->ReadRegister(PCReg); 
+
+				machine->WriteRegister(PrevPCReg,pc); 
+				pc = machine->ReadRegister(NextPCReg); 
+				machine->WriteRegister(PCReg,pc); 
+
+				pc += 4; 
+				machine->WriteRegister(NextPCReg,pc);
+
+				break;	// Get out.*/
+
 			}
 			case SC_Join :	// Join one process to another.
 			{
@@ -345,6 +358,16 @@ ExceptionHandler(ExceptionType which)
 		printf("ERROR: IllegalInstrException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
 			ASSERT(FALSE);  //Not the way of handling an exception.
+			/*if (TRUE) 
+			{
+				
+				printf("Process Exited abnormally.\n");
+				Exit(-1);
+			}
+			else 
+			{
+				printf("Process Exited normally.\n");
+			} */
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
