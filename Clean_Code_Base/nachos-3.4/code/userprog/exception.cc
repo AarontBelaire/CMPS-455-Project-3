@@ -193,9 +193,11 @@ ExceptionHandler(ExceptionType which)
 
 				// Calculate needed memory space
 				AddrSpace *space;
-				// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+
+					// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
-				// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+					// End code changes by DUSTIN SIMONEAUX // ----------------------------------
+
 				delete executable;
 				// Do we have enough space?
 				if(!currentThread->killNewChild)	// If so...

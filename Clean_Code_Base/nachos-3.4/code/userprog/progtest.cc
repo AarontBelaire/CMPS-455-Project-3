@@ -49,8 +49,8 @@ StartProcess(char *filename)
     //ASSERT(FALSE);
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
      if (TRUE)             // machine->Run never returns;
-    {           
-        Exit(0);
+    {   printf("Error: Non-normal exit!");        
+        Exit(-1);
     }
     else 
     {

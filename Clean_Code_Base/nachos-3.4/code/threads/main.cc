@@ -97,7 +97,7 @@ main(int argc, char **argv)
 // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 	        //ASSERT(argc > 1);
 			 
-            if (argc < 1)
+            if (argc <= 1)
 			{
 				//argCount = 2;
 				printf("I'm here\n");

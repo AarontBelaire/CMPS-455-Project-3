@@ -28,6 +28,8 @@ class AddrSpace {
 					// stored in the file "executable"
     ~AddrSpace();			// De-allocate an address space
 
+        
+
     void InitRegisters();		// Initialize user-level CPU registers,
 					// before jumping to user code
 

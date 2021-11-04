@@ -62,7 +62,8 @@ SwapHeader (NoffHeader *noffH)
 
 // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
 AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
-// End code changes by DUSTIN SIMONEAUX // -------------------------------
+// End code changes by DUSTIN SIMONEAUX // ---------------------------------
+
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -75,7 +76,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     if (noffH.noffMagic != NOFFMAGIC) 
     {
-        printf("Exiting: Not in NOFF format.\n");
+        printf("Exiting Error: Not in NOFF format.\n");
         Exit(-1);
     }
     else 
@@ -89,6 +90,12 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 	// we need to increase the size to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
+
+      //This will create a file and allocate space
+    //int buffer = noffH.code.size + noffH.initData.size + noffH.uninitData.size;
+    //char *swapFilename = new char[100];
+    //fileSystem->Create(swapFilename, buffer); 
+    //char *filename = thread_id;
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     if (numPages > NumPhysPages)    
@@ -122,7 +129,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    //bzero(machine->mainMemory, size);
+    bzero(machine->mainMemory, size);
     //memset(buffer, '-', buffer_size);
 
 // then, copy in the code and data segments into memory
