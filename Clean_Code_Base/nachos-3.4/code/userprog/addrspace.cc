@@ -111,7 +111,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
         // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
         int freePage = bitMap->Find();
-        if (freePage) 
+        if (freePage < i) 
         {
             bitMap->Clear(i);
         }
