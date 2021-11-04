@@ -96,13 +96,19 @@ main(int argc, char **argv)
 
 // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 	        //ASSERT(argc > 1);
-            if (argc > 1)
-              	StartProcess(*(argv + 1));
+			 
+            if (argc < 1)
+			{
+				//argCount = 2;
+				printf("I'm here\n");
+				printf("argc: %d\n", argc);
+			}
             else
             {
-		        printf("I'm here");
-              	argCount = 2;
-            }       
+				StartProcess(*(argv + 1));
+				 	
+            }  
+			     
 // End code changes by DUSTIN SIMONEAUX // ------------------------------------
         } else if (!strcmp(*argv, "-c")) {      // test the console
 	    if (argc == 1)

@@ -96,7 +96,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 		// 
         printf("Error: Number of pages cannot be > number of physical pages\n");
         Exit(-1);
-        // MAYBE??? delete pageTable; 
+        // MAYBE??? 
+        //delete pageTable; 
     }					                    
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
@@ -108,8 +109,9 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 	    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 
         // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-        //pageTable[i].physicalPage = i; // Removing this since its no longer 1:1
-        pageTable[i].valid = FALSE; // CHANGED FROM TRUE
+        pageTable[i].physicalPage = i; // Removing this since its no longer 1:1
+        pageTable[i].valid = TRUE; 
+        //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
         // End code changes by DUSTIN SIMONEAUX // ---------------------------------
 
         pageTable[i].use = FALSE;
@@ -120,7 +122,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
+    //bzero(machine->mainMemory, size);
+    //memset(buffer, '-', buffer_size);
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {

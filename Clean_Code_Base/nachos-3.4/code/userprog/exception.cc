@@ -287,7 +287,7 @@ ExceptionHandler(ExceptionType which)
 
 // Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 
-	case PageFaultException :
+	//case PageFaultException :
 		/* 1.)
 			Increase pageFault stats ( You can create a separate page fault
 			variable to keep track of it). There is already stats->numPageFaults
@@ -299,16 +299,19 @@ ExceptionHandler(ExceptionType which)
 			Get the address that caused page fault,
 				badVAddr = machine->ReadRegister(BadVAddrReg);
 		*/
+		//badVAddr = machine->ReadRegister(BadVAddrReg);
 
 		/* 3.)
 			Calculate the virtual page, badVPage = badVAddr/PageSize.
 		*/
+		//badVPage = badVAddr/PageSize;
 
 		/* 4.)
 			Find a physical page:
 						- use bitMap->find()
 						- if no free physical page is found depending on -V option
 		*/
+		//bitMap->find();
 
 // End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
 

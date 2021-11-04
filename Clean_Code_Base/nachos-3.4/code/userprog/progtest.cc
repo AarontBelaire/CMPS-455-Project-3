@@ -19,7 +19,6 @@
 // 	Run a user program.  Open the executable, load it into
 //	memory, and jump to it.
 //----------------------------------------------------------------------
-
 void
 StartProcess(char *filename)
 {
@@ -27,14 +26,18 @@ StartProcess(char *filename)
 	
     AddrSpace *space;
 
-    if (executable == NULL) {
-	printf("Unable to open file %s\n", filename);
-	return;
+    if (executable == NULL) 
+    {
+	    printf("Unable to open file %s\n", filename);
+	    return;
     }
-// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-	// passing 0 as argument as this is the location for main thread
+
+    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+	    // passing 0 as argument as this is the location for main thread
+    //space = new AddrSpace(executable;
     space = new AddrSpace(executable, 0);
-// End code changes by DUSTIN SIMONEAUX // ------------------------------------
+    // End code changes by DUSTIN SIMONEAUX // ------------------------------------
+    
     currentThread->space = space;
 
     delete executable;			// close file
@@ -43,14 +46,22 @@ StartProcess(char *filename)
     space->RestoreState();		// load page table register
 
     machine->Run();			// jump to the user progam
-    ASSERT(FALSE);			// machine->Run never returns;
-					// the address space exits
-					// by doing the syscall "exit"
+    //ASSERT(FALSE);
+    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+     if (TRUE)             // machine->Run never returns;
+    {           
+        Exit(0);
+    }
+    else 
+    {
+        printf("This message has not yet been completed."); //MAYBE??? still not sure yet
+    }			
+	// the address space exits by doing the syscall "exit"
+	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
 }
 
 // Data structures needed for the console test.  Threads making
 // I/O requests wait on a Semaphore to delay until the I/O completes.
-
 static Console *console;
 static Semaphore *readAvail;
 static Semaphore *writeDone;
@@ -59,7 +70,6 @@ static Semaphore *writeDone;
 // ConsoleInterruptHandlers
 // 	Wake up the thread that requested the I/O.
 //----------------------------------------------------------------------
-
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
 
@@ -68,7 +78,6 @@ static void WriteDone(int arg) { writeDone->V(); }
 // 	Test the console by echoing characters typed at the input onto
 //	the output.  Stop when the user types a 'q'.
 //----------------------------------------------------------------------
-
 void 
 ConsoleTest (char *in, char *out)
 {
@@ -78,11 +87,12 @@ ConsoleTest (char *in, char *out)
     readAvail = new Semaphore("read avail", 0);
     writeDone = new Semaphore("write done", 0);
     
-    for (;;) {
-	readAvail->P();		// wait for character to arrive
-	ch = console->GetChar();
-	console->PutChar(ch);	// echo it!
-	writeDone->P() ;        // wait for write to finish
-	if (ch == 'q') return;  // if q, quit
+    for (;;) 
+    {
+	    readAvail->P();		        // wait for character to arrive
+	    ch = console->GetChar();
+	    console->PutChar(ch);	    // echo it!
+	    writeDone->P() ;            // wait for write to finish
+	    if (ch == 'q') return;      // if q, quit
     }
 }
