@@ -91,7 +91,9 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 	// we need to increase the size to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
-
+    printf("AddrSpace: Number of pages: %d\n", numPages);
+    printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
+    printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     if (numPages > NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
@@ -118,7 +120,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         }
         
         printf("FreePage: %d\n", freePage);
-        printf("AddrSpace: Number of pages: %d\n", numPages);
+        
         pageTable[i].physicalPage = freePage; // changed this since its no longer 1:1
         pageTable[i].valid = TRUE; 
         //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
