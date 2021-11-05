@@ -80,31 +80,30 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         printf("Exiting Error: Not in NOFF format.\n");
         Exit(-1);
     }
-    else 
-    {
-        
-    }
+    
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // how big is address space?
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; 
+    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size; //removed UserStackSize
 	// we need to increase the size to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
-    printf("AddrSpace: Number of pages: %d\n", numPages);
+    
+    // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+    printf("\n\nAddrSpace: Number of pages: %d\n", numPages);
     printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
     printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
-    // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+    
     if (numPages > NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
         printf("Error: Not enough memory to run.\n");
         Exit(-1);
         // MAYBE??? 
-        //delete pageTable; 
+        delete pageTable; 
     }					                    
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
-    
-    DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
+    //bitMap->Print();
+    printf("Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
 
     // first, set up the translation  
@@ -118,8 +117,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         {
         bitMap->Clear(freePage);
         }
-        
-        printf("FreePage: %d\n", freePage);
+        //bitMap->Print();
+        //printf("FreePage: %d\n", freePage);
         
         pageTable[i].physicalPage = freePage; // changed this since its no longer 1:1
         pageTable[i].valid = TRUE; 
