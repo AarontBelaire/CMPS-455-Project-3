@@ -123,7 +123,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         pageTable[i].valid = TRUE; 
         //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
             // End code changes by DUSTIN SIMONEAUX // ---------------------------------
-
+        //welcome to good burger home of the good burger can i take your order
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
