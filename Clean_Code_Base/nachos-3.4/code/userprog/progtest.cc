@@ -34,7 +34,6 @@ StartProcess(char *filename)
 
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 	    // passing 0 as argument as this is the location for main thread
-    //space = new AddrSpace(executable;
     space = new AddrSpace(executable, 0);
     // End code changes by DUSTIN SIMONEAUX // ------------------------------------
     
@@ -52,10 +51,7 @@ StartProcess(char *filename)
     {   printf("Error: Non-normal exit!");        
         Exit(-1);
     }
-    //else 
-    ///{
-    //    printf("This message has not yet been completed."); //MAYBE??? still not sure yet
-    //}			
+    			
 	// the address space exits by doing the syscall "exit"
 	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
 }
