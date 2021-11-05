@@ -48,14 +48,14 @@ StartProcess(char *filename)
     machine->Run();			// jump to the user progam
     //ASSERT(FALSE);
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-     if (TRUE)             // machine->Run never returns;
+    if (TRUE)             // machine->Run never returns;
     {   printf("Error: Non-normal exit!");        
         Exit(-1);
     }
-    else 
-    {
-        printf("This message has not yet been completed."); //MAYBE??? still not sure yet
-    }			
+    //else 
+    ///{
+    //    printf("This message has not yet been completed."); //MAYBE??? still not sure yet
+    //}			
 	// the address space exits by doing the syscall "exit"
 	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
 }
