@@ -110,18 +110,19 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     for (i = 0; i < numPages; i++) {
 	    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
 
-        // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+            // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
         int freePage = bitMap->Find();
         if (freePage != i) 
         {
         bitMap->Clear(freePage);
         }
+        
         printf("FreePage: %d\n", freePage);
         printf("AddrSpace: Number of pages: %d\n", numPages);
         pageTable[i].physicalPage = freePage; // changed this since its no longer 1:1
         pageTable[i].valid = TRUE; 
         //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
-        // End code changes by DUSTIN SIMONEAUX // ---------------------------------
+            // End code changes by DUSTIN SIMONEAUX // ---------------------------------
 
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;

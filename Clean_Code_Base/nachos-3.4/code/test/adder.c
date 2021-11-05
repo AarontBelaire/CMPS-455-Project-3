@@ -8,6 +8,6 @@ int main() {
 	for (i = 0; i < loops; i++) {
 		x = x + i;	
 	}
-	Write("\nAdding Complete!\n", 20, ConsoleOutput);
+	Write("\nAdding Complete!\n", 21, ConsoleOutput);
 	Exit(0);
 }
