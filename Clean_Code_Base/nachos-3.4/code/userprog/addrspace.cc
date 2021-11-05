@@ -82,19 +82,20 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     }
     
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
-
+    int freePage = bitMap->Find();
     // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size; //removed UserStackSize
-	// we need to increase the size to leave room for the stack
+	
+    // we need to increase the size to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
-    
+    //freePage = bitMap->Find();
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     printf("\n\nAddrSpace: Number of pages: %d\n", numPages);
     printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
     printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
     
-    if (numPages > NumPhysPages)    
+    if (freePage > NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
         printf("Error: Not enough memory to run.\n");
         Exit(-1);
@@ -106,30 +107,31 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     printf("Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
 
-    // first, set up the translation  
+    // first, set up the translation 
+    freePage = bitMap->Find(); 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
-	    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-
             // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-        int freePage = bitMap->Find();
-        if (freePage != i) 
-        {
-        bitMap->Clear(freePage);
-        }
+        //int freePage = bitMap->Find();
+        //if (freePage != i) 
+        //{
+        //    bitMap->Clear(freePage);
+        //}
+        
         //bitMap->Print();
         //printf("FreePage: %d\n", freePage);
-        
-        pageTable[i].physicalPage = freePage; // changed this since its no longer 1:1
-        pageTable[i].valid = TRUE; 
-        //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
-            // End code changes by DUSTIN SIMONEAUX // ---------------------------------
 
+	    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+        pageTable[i].physicalPage = i; 
+        pageTable[i].valid = TRUE; 
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
-			// a separate page, we could set its pages to be read-only
+			            // a separate page, we could set its pages to be read-only
+        //bzero(machine->pageTable, size);
+            // End code changes by DUSTIN SIMONEAUX // ---------------------------------
     }
+    //delete pageTable;
     
     
 // zero out the entire address space, to zero the unitialized data segment 
@@ -150,7 +152,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
-
+    //machine->PrintMemory();
 }
 
 //----------------------------------------------------------------------

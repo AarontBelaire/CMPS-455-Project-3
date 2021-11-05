@@ -159,6 +159,9 @@ ExceptionHandler(ExceptionType which)
 			break;
 		case SC_Exec :	// Executes a user process inside another user process.
 		   {
+				int freePage = bitMap->Find();
+				//bitMap->Clear(freePage);
+				bitMap->Print();
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
 				// Retrieve the address of the filename
@@ -190,12 +193,13 @@ ExceptionHandler(ExceptionType which)
 					break;
 				}
 				delete filename;
-
+				
 				// Calculate needed memory space
 				AddrSpace *space;
 
 					// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
+				
 					// End code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 				delete executable;
@@ -216,7 +220,7 @@ ExceptionHandler(ExceptionType which)
 					currentThread->killNewChild = false;	// Reset our variable
 				}
 
-				/* 
+				/*  
 				int pc; 
 				pc = machine->ReadRegister(PCReg); 
 
@@ -226,7 +230,7 @@ ExceptionHandler(ExceptionType which)
 
 				pc += 4; 
 				machine->WriteRegister(NextPCReg,pc);
-
+				*/
 				break;	// Get out.*/
 
 			}
@@ -266,10 +270,12 @@ ExceptionHandler(ExceptionType which)
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 				
+				//machine->PrintMemory();
+				
 				if(currentThread->space)	// Delete the used memory from the process.
 					delete currentThread->space;
 				currentThread->Finish();	// Delete the thread.
-
+				
 				break;
 			}
            case SC_Yield :	// Yield to a new process.
@@ -357,8 +363,8 @@ ExceptionHandler(ExceptionType which)
 	case IllegalInstrException :
 		printf("ERROR: IllegalInstrException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
-			/*if (TRUE) 
+			//ASSERT(FALSE);  //Not the way of handling an exception.
+			if (TRUE) 
 			{
 				
 				printf("Process Exited abnormally.\n");
@@ -367,7 +373,7 @@ ExceptionHandler(ExceptionType which)
 			else 
 			{
 				printf("Process Exited normally.\n");
-			} */
+			} 
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.

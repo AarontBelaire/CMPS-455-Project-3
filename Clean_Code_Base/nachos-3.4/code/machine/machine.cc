@@ -212,3 +212,18 @@ void Machine::WriteRegister(int num, int value)
 	registers[num] = value;
     }
 
+void Machine::PrintMemory() 
+{
+    //printf("\nMain Mem:\n%s\n", mainMemory);
+    printf("\nMain Mem:\n");
+    for (int pageNum = 0; pageNum < NumPhysPages; pageNum++) 
+    {
+        printf("Page Num %d: ", pageNum);
+        for (int i = 0; i < PageSize; i++) 
+        {
+            printf("%d ", mainMemory[(pageNum * PageSize) + i]);
+        }
+        printf("\n\n");
+    }
+    printf("\n");
+}
