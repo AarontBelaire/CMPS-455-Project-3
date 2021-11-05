@@ -74,6 +74,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     	SwapHeader(&noffH);
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+    //ASSERT(noffH.noffMagic == NOFFMAGIC)
     if (noffH.noffMagic != NOFFMAGIC) 
     {
         printf("Exiting Error: Not in NOFF format.\n");
@@ -111,9 +112,9 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
         // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
         int freePage = bitMap->Find();
-        if (freePage < i) 
+        if (freePage != i) 
         {
-            bitMap->Clear(i);
+        bitMap->Clear(freePage);
         }
         printf("FreePage: %d\n", freePage);
         printf("AddrSpace: Number of pages: %d\n", numPages);
@@ -127,6 +128,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
 			// a separate page, we could set its pages to be read-only
     }
+    
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
