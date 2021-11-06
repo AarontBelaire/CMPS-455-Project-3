@@ -97,7 +97,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
     printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
     
-    if (numPages > NumPhysPages)    
+    if (noffH.code.virtualAddr >= NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
         printf("Error: Not enough memory to run.\n");
         Exit(-1); 
@@ -110,7 +110,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // first, set up the translation 
- 
+    Thread *IPT[NumPhysPages];
+    //IPT[0] = bitMap->Find();
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
             // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
@@ -125,6 +126,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
             // End code changes by DUSTIN SIMONEAUX // ---------------------------------
     }
+    
     //bitMap->Clear(pageTable[i].physicalPage);
     //int freePage = bitMap->Find();
     //bitMap->Clear(pageTable->physicalPage);
@@ -261,3 +263,4 @@ AddrSpace::Translate(int vaddr, int *paddr, bool writing)
 
     return NoException;
 }
+
