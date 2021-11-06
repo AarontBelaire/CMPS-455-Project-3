@@ -1,4 +1,4 @@
-// exception.cc 
+// exception.cc
 //	Entry point into the Nachos kernel from user programs.
 //	There are two kinds of things that can cause control to
 //	transfer back to here from user code:
@@ -9,7 +9,7 @@
 //
 //	exceptions -- The user code does something that the CPU can't handle.
 //	For instance, accessing memory that doesn't exist, arithmetic errors,
-//	etc.  
+//	etc.
 //
 //	Interrupts (which can also cause control to transfer from user
 //	code into the Nachos kernel) are handled elsewhere.
@@ -18,7 +18,7 @@
 // Everything else core dumps.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include <stdio.h>        // FA98
@@ -51,12 +51,12 @@ Thread * getID(int toGet);
 //		arg3 -- r6
 //		arg4 -- r7
 //
-//	The result of the system call, if any, must be put back into r2. 
+//	The result of the system call, if any, must be put back into r2.
 //
 // And don't forget to increment the pc before returning. (Or else you'll
 // loop making the same system call forever!
 //
-//	"which" is the kind of exception.  The list of possible exceptions 
+//	"which" is the kind of exception.  The list of possible exceptions
 //	are in machine.h.
 //----------------------------------------------------------------------
 
@@ -80,12 +80,12 @@ Thread* getID(int toGet)	// Goes through the list of active threads and returns 
 		return NULL;
 	else return toReturn;
 }
-	
+
 void processCreator(int arg)	// Used when a process first actually runs, not when it is created.
  {
 	currentThread->space->InitRegisters();		// set the initial register values
     currentThread->space->RestoreState();		// load page table register
-	
+
 	if (threadToBeDestroyed != NULL){
 		delete threadToBeDestroyed;
 		threadToBeDestroyed = NULL;
@@ -98,6 +98,13 @@ void processCreator(int arg)	// Used when a process first actually runs, not whe
 void
 ExceptionHandler(ExceptionType which)
 {
+
+	// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+	int badVAddr;
+	int badVPage;
+	int freePage;
+	// End code changes by JOSHUA PLAUCHE // -------------------------------
+
 	int type = machine->ReadRegister(2);
 
 	int arg1 = machine->ReadRegister(4);
@@ -128,7 +135,7 @@ ExceptionHandler(ExceptionType which)
 			interrupt->Halt();
 			break;
 
-			
+
 		case SC_Read :
 			if (arg2 <= 0 || arg3 < 0){
 				printf("\nRead 0 byte.\n");
@@ -145,7 +152,7 @@ ExceptionHandler(ExceptionType which)
 					j=j-1;
 				else{
 					ch[j] = (char) i;
-					if (ch[j] == '\0') 
+					if (ch[j] == '\0')
 						break;
 				}
 			}
@@ -159,7 +166,7 @@ ExceptionHandler(ExceptionType which)
 			break;
 		case SC_Exec :	// Executes a user process inside another user process.
 		   {
-				
+
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
 				// Retrieve the address of the filename
@@ -167,7 +174,7 @@ ExceptionHandler(ExceptionType which)
 
 				// Read file name into the kernel space
 				char *filename = new char[100];
-				
+
 				for(int m = 0; m < 100; m++)
 					filename[m] = NULL;
 
@@ -183,21 +190,21 @@ ExceptionHandler(ExceptionType which)
 				}
 				// Open File
 				OpenFile *executable = fileSystem->Open(filename);
-				
-				if (executable == NULL) 
+
+				if (executable == NULL)
 				{
 					printf("Unable to open file %s\n", filename);
 					delete filename;
 					break;
 				}
 				delete filename;
-				
+
 				// Calculate needed memory space
 				AddrSpace *space;
 
 					// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
-				
+
 					// End code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 				delete executable;
@@ -218,15 +225,15 @@ ExceptionHandler(ExceptionType which)
 					currentThread->killNewChild = true;	// Reset our variable
 				}
 
-				/*  
-				int pc; 
-				pc = machine->ReadRegister(PCReg); 
+				/*
+				int pc;
+				pc = machine->ReadRegister(PCReg);
 
-				machine->WriteRegister(PrevPCReg,pc); 
-				pc = machine->ReadRegister(NextPCReg); 
-				machine->WriteRegister(PCReg,pc); 
+				machine->WriteRegister(PrevPCReg,pc);
+				pc = machine->ReadRegister(NextPCReg);
+				machine->WriteRegister(PCReg,pc);
 
-				pc += 4; 
+				pc += 4;
 				machine->WriteRegister(NextPCReg,pc);
 				*/
 				break;	// Get out.*/
@@ -240,7 +247,7 @@ ExceptionHandler(ExceptionType which)
 					printf("ERROR: Trying to join process %i to process %i, which was not created successfully! Process %i continuing normally.\n", currentThread->getID(), -arg1, currentThread->getID());	// Return an error message, continue as normal.
 					break;
 				}
-				
+
 				if(getID(arg1) != NULL)	// If the thread exists...
 				{
 					if(!currentThread->isJoined)	// And it's not already joined...
@@ -263,28 +270,26 @@ ExceptionHandler(ExceptionType which)
 			case SC_Exit :	// Exit a process.
 			{
 				//int freePage = bitMap->Find();
-				
+
 				//bitMap->Clear(AddrSpace.freePage);
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
 				{
 					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
-					
+
 					bitMap->Print();
 				}
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
-				
+
 				//machine->PrintMemory();
 				//freePage = bitMap->Find();
-				
-				bitMap->Clear(arg1);
-				bitMap->Clear(arg2);
+
 				if(currentThread->space)	// Delete the used memory from the process.
 					delete currentThread->space;
 				currentThread->Finish();	// Delete the thread.
-				
-				
+
+
 				break;
 			}
            case SC_Yield :	// Yield to a new process.
@@ -317,35 +322,34 @@ ExceptionHandler(ExceptionType which)
 
 // Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 
-	/* 
+
 	case PageFaultException :
 		// 1.)
 		//	Increase pageFault stats ( You can create a separate page fault
 		//	variable to keep track of it). There is already stats->numPageFaults
 		//	defined which you can simply increase during page fault.
-		
 
 
-		// 2.)
-		//	Get the address that caused page fault,
-		//		badVAddr = machine->ReadRegister(BadVAddrReg);
-		
-		int badVAddr = machine->ReadRegister(BadVAddrReg);
+		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+		stats->numPageFaults++;
 
-		// 3.)
-		//	Calculate the virtual page, badVPage = badVAddr/PageSize.
-		
-		int badVPage = badVAddr/PageSize;
+		badVAddr = machine->ReadRegister(BadVAddrReg);
 
-		// 4.)
-		//	Find a physical page:
-		//				- use bitMap->find()
-		//				- if no free physical page is found depending on -V option
-		
-		int freePage = bitMap->find();
+		badVPage = badVAddr/PageSize;
+
+		freePage = bitMap->Find();
+		if (freePage == -1)
+		{
+			printf("There are no available pages terminating nachOS\n");
+			Exit(0);
+		}
+
+		currentThread->space->pageTable[badVPage].physicalPage = freePage;
+		currentThread->space->pageTable[badVPage].valid = TRUE;
+		// printf("Here is the numPageFaults: %i\n Here is the bad address: %i\n Here is the bad page: %i\n", stats->numPageFaults, badVAddr, badVPage);
 
 		break;
-	*/
+		// End code changes by JOSHUA PLAUCHE // -------------------------------
 
 // End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
 
@@ -394,7 +398,7 @@ ExceptionHandler(ExceptionType which)
 	case IllegalInstrException :
 		printf("ERROR: IllegalInstrException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			
+
 		// Begin code changes by DUSTIN SIMONEAUX // --------------------------------------
 			//ASSERT(FALSE);  //Not the way of handling an exception.
 			if (TRUE)
@@ -403,7 +407,7 @@ ExceptionHandler(ExceptionType which)
 				Exit(-1);
 			}
 		// End code changes by DUSTIN SIMONEAUX // ----------------------------------------
-			 
+
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
@@ -489,4 +493,3 @@ static void SWrite(char *buffer, int size, int id)
 	WriteFile(id,buffer,size);
 }
 // end FA98
-
