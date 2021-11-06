@@ -164,6 +164,48 @@ AddrSpace::~AddrSpace()
    delete pageTable;
 }
 
+int 
+AddrSpace::Translate(int virtAddr)
+{
+	int physAddr;
+	int vpn = virtAddr / PageSize;
+	int offset = virtAddr % PageSize;
+
+	if(vpn >= numPages)
+    {
+		DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
+		return -1;
+	}
+	if(! pageTable[vpn].valid)
+    {
+		DEBUG('a', "Translate VPN %d Invalid \n",virtAddr);
+		return -1;
+	}
+	
+	physAddr = PageSize * pageTable[vpn].physicalPage + offset;
+	DEBUG('a', "Translate VPN %d to PFN %d \n",virtAddr,physAddr);
+	
+	return physAddr;
+}
+
+int 
+AddrSpace::TranslateDiskLocation(int virtAddr)
+{
+    int physAddr;
+    int vpn = virtAddr / PageSize;
+    int offset = virtAddr % PageSize;
+    
+    if(vpn >= numPages)
+    {
+	    DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
+	    return -1;
+    }
+    
+    physAddr = PageSize * pageTable[vpn].location;
+    DEBUG('a', "Location Translate VPN %d to LOC %d + %d \n",virtAddr,physAddr,offset);
+    
+    return physAddr;
+}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 // 	Set the initial values for the user-level register set.
@@ -221,46 +263,5 @@ void AddrSpace::RestoreState()
     machine->pageTableSize = numPages;
 }
 
-ExceptionType
-AddrSpace::Translate(int vaddr, int *paddr, bool writing)
-{
-    //pageTable = new TranslationEntry[numPages];
-    TranslationEntry *pte;
-    int pfn;
-    int vpn    = vaddr / PageSize;
-    int offset = vaddr % PageSize;
 
-    if (vpn >= numPages) 
-    {
-        return AddressErrorException;
-    }
-    pte = &pageTable[vpn];
-
-    if (writing && pte->readOnly) {
-        return ReadOnlyException;
-    }
-
-    pfn = pte->physicalPage;
-
-    // if the pageFrame is too big, there is something really wrong!
-    // An invalid translation was loaded into the page table or TLB.
-    if (pfn >= NumPhysPages) {
-        //DEBUG(dbgAddr, "Illegal physical page " << pfn);
-        return BusErrorException;
-    }
-    
-    pte->use = TRUE;          // set the use, dirty bits
-
-    if (writing)
-        pte->dirty = TRUE;
-
-    *paddr = pfn*PageSize + offset;
-
-    ASSERT((*paddr < MemorySize));
-
-    //DEBUG(dbgAddr, "AddrSpace::Translate(): vaddr: " << vaddr <<
-    //               ", paddr: " << *paddr);
-
-    return NoException;
-}
 
