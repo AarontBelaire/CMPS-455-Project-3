@@ -159,9 +159,7 @@ ExceptionHandler(ExceptionType which)
 			break;
 		case SC_Exec :	// Executes a user process inside another user process.
 		   {
-				//int freePage = bitMap->Find();
-				//bitMap->Clear(freePage);
-				//bitMap->Print();
+				
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
 				// Retrieve the address of the filename
@@ -217,7 +215,7 @@ ExceptionHandler(ExceptionType which)
 				else	// If not...
 				{
 					machine->WriteRegister(2, -1 * (threadID + 1));	// Return an error code
-					currentThread->killNewChild = false;	// Reset our variable
+					currentThread->killNewChild = true;	// Reset our variable
 				}
 
 				/*  
@@ -264,6 +262,9 @@ ExceptionHandler(ExceptionType which)
 			}
 			case SC_Exit :	// Exit a process.
 			{
+				//int freePage = bitMap->Find();
+				
+				//bitMap->Clear(AddrSpace.freePage);
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
 				{
@@ -275,7 +276,10 @@ ExceptionHandler(ExceptionType which)
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 				
 				//machine->PrintMemory();
+				//freePage = bitMap->Find();
 				
+				bitMap->Clear(arg1);
+				bitMap->Clear(arg2);
 				if(currentThread->space)	// Delete the used memory from the process.
 					delete currentThread->space;
 				currentThread->Finish();	// Delete the thread.

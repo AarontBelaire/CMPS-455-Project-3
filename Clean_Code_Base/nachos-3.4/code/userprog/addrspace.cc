@@ -104,14 +104,13 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         delete pageTable; 
     }					                    
     
-    //bitMap->Print();
+   
     //printf("Initializing address space, num pages %d, size %d\n", 
 	//				numPages, size);
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // first, set up the translation 
     Thread *IPT[NumPhysPages];
-    //IPT[0] = bitMap->Find();
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
             // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
@@ -137,7 +136,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 // and the stack segment
     //bzero(machine->mainMemory, size);
 
-
+    char buffer[size];
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
@@ -164,48 +163,6 @@ AddrSpace::~AddrSpace()
    delete pageTable;
 }
 
-int 
-AddrSpace::Translate(int virtAddr)
-{
-	int physAddr;
-	int vpn = virtAddr / PageSize;
-	int offset = virtAddr % PageSize;
-
-	if(vpn >= numPages)
-    {
-		DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
-		return -1;
-	}
-	if(! pageTable[vpn].valid)
-    {
-		DEBUG('a', "Translate VPN %d Invalid \n",virtAddr);
-		return -1;
-	}
-	
-	physAddr = PageSize * pageTable[vpn].physicalPage + offset;
-	DEBUG('a', "Translate VPN %d to PFN %d \n",virtAddr,physAddr);
-	
-	return physAddr;
-}
-
-int 
-AddrSpace::TranslateDiskLocation(int virtAddr)
-{
-    int physAddr;
-    int vpn = virtAddr / PageSize;
-    int offset = virtAddr % PageSize;
-    
-    if(vpn >= numPages)
-    {
-	    DEBUG('a', "Translate VPN %d greather than %d \n",virtAddr,numPages);
-	    return -1;
-    }
-    
-    physAddr = PageSize * pageTable[vpn].location;
-    DEBUG('a', "Location Translate VPN %d to LOC %d + %d \n",virtAddr,physAddr,offset);
-    
-    return physAddr;
-}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 // 	Set the initial values for the user-level register set.
