@@ -159,9 +159,9 @@ ExceptionHandler(ExceptionType which)
 			break;
 		case SC_Exec :	// Executes a user process inside another user process.
 		   {
-				int freePage = bitMap->Find();
+				//int freePage = bitMap->Find();
 				//bitMap->Clear(freePage);
-				bitMap->Print();
+				//bitMap->Print();
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
 				// Retrieve the address of the filename
@@ -266,7 +266,11 @@ ExceptionHandler(ExceptionType which)
 			{
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
+				{
 					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
+					
+					bitMap->Print();
+				}
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 				
@@ -275,6 +279,7 @@ ExceptionHandler(ExceptionType which)
 				if(currentThread->space)	// Delete the used memory from the process.
 					delete currentThread->space;
 				currentThread->Finish();	// Delete the thread.
+				
 				
 				break;
 			}
@@ -308,31 +313,35 @@ ExceptionHandler(ExceptionType which)
 
 // Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 
-	//case PageFaultException :
-		/* 1.)
-			Increase pageFault stats ( You can create a separate page fault
-			variable to keep track of it). There is already stats->numPageFaults
-			defined which you can simply increase during page fault.
-		*/
+	/* 
+	case PageFaultException :
+		// 1.)
+		//	Increase pageFault stats ( You can create a separate page fault
+		//	variable to keep track of it). There is already stats->numPageFaults
+		//	defined which you can simply increase during page fault.
+		
 
 
-		/* 2.)
-			Get the address that caused page fault,
-				badVAddr = machine->ReadRegister(BadVAddrReg);
-		*/
-		//badVAddr = machine->ReadRegister(BadVAddrReg);
+		// 2.)
+		//	Get the address that caused page fault,
+		//		badVAddr = machine->ReadRegister(BadVAddrReg);
+		
+		int badVAddr = machine->ReadRegister(BadVAddrReg);
 
-		/* 3.)
-			Calculate the virtual page, badVPage = badVAddr/PageSize.
-		*/
-		//badVPage = badVAddr/PageSize;
+		// 3.)
+		//	Calculate the virtual page, badVPage = badVAddr/PageSize.
+		
+		int badVPage = badVAddr/PageSize;
 
-		/* 4.)
-			Find a physical page:
-						- use bitMap->find()
-						- if no free physical page is found depending on -V option
-		*/
-		//bitMap->find();
+		// 4.)
+		//	Find a physical page:
+		//				- use bitMap->find()
+		//				- if no free physical page is found depending on -V option
+		
+		int freePage = bitMap->find();
+
+		break;
+	*/
 
 // End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
 
@@ -347,7 +356,16 @@ ExceptionHandler(ExceptionType which)
 	case AddressErrorException :
 		printf("ERROR: AddressErrorException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
+
+		// Begin code changes by DUSTIN SIMONEAUX // --------------------------------------
+			//ASSERT(FALSE);  //Not the way of handling an exception.
+			if (TRUE)
+			{
+				printf("\nAbnormal Exit: Address Exception error on main thread.\n");
+				Exit(-1);
+			}
+		// End code changes by DUSTIN SIMONEAUX // ----------------------------------------
+
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
@@ -355,7 +373,16 @@ ExceptionHandler(ExceptionType which)
 	case OverflowException :
 		printf("ERROR: OverflowException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
+
+		// Begin code changes by DUSTIN SIMONEAUX // --------------------------------------
+			//ASSERT(FALSE);  //Not the way of handling an exception.
+			if (TRUE)
+			{
+				printf("\nAbnormal Exit: Overflow Exception error on main thread.\n");
+				Exit(-1);
+			}
+		// End code changes by DUSTIN SIMONEAUX // ----------------------------------------
+
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
@@ -363,17 +390,16 @@ ExceptionHandler(ExceptionType which)
 	case IllegalInstrException :
 		printf("ERROR: IllegalInstrException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
+			
+		// Begin code changes by DUSTIN SIMONEAUX // --------------------------------------
 			//ASSERT(FALSE);  //Not the way of handling an exception.
-			if (TRUE) 
+			if (TRUE)
 			{
-				
-				printf("Process Exited abnormally.\n");
+				printf("\nAbnormal Exit: Illegal Instruction error on main thread.\n");
 				Exit(-1);
 			}
-			else 
-			{
-				printf("Process Exited normally.\n");
-			} 
+		// End code changes by DUSTIN SIMONEAUX // ----------------------------------------
+			 
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
@@ -381,7 +407,16 @@ ExceptionHandler(ExceptionType which)
 	case NumExceptionTypes :
 		printf("ERROR: NumExceptionTypes, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
+
+		// Begin code changes by DUSTIN SIMONEAUX // --------------------------------------
+			//ASSERT(FALSE);  //Not the way of handling an exception.
+			if (TRUE)
+			{
+				printf("\nAbnormal Exit: Number of Exception Types error on main thread.\n");
+				Exit(-1);
+			}
+		// End code changes by DUSTIN SIMONEAUX // ----------------------------------------
+
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.

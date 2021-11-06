@@ -17,8 +17,10 @@
 
 #include "copyright.h"
 #include "system.h"
+#include "machine.h"
 #include "addrspace.h"
 #include "noff.h"
+#include "bitmap.h"
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -82,62 +84,57 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     }
     
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
-    int freePage = bitMap->Find();
+
     // how big is address space?
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size; //removed UserStackSize
+    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; //removed UserStackSize
 	
     // we need to increase the size to leave room for the stack
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
-    //freePage = bitMap->Find();
+
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
     printf("\n\nAddrSpace: Number of pages: %d\n", numPages);
     printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
     printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
     
-    if (freePage > NumPhysPages)    
+    if (numPages > NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
         printf("Error: Not enough memory to run.\n");
-        Exit(-1);
-        // MAYBE??? 
+        Exit(-1); 
         delete pageTable; 
     }					                    
-    // End code changes by DUSTIN SIMONEAUX // -------------------------------
+    
     //bitMap->Print();
-    printf("Initializing address space, num pages %d, size %d\n", 
-					numPages, size);
+    //printf("Initializing address space, num pages %d, size %d\n", 
+	//				numPages, size);
+    // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // first, set up the translation 
-    freePage = bitMap->Find(); 
+ 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
             // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-        //int freePage = bitMap->Find();
-        //if (freePage != i) 
-        //{
-        //    bitMap->Clear(freePage);
-        //}
+            
+	    pageTable[i].virtualPage = i;	
+        pageTable[i].physicalPage = bitMap->Find(); 
         
-        //bitMap->Print();
-        //printf("FreePage: %d\n", freePage);
-
-	    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-        pageTable[i].physicalPage = i; 
         pageTable[i].valid = TRUE; 
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
-			            // a separate page, we could set its pages to be read-only
-        //bzero(machine->pageTable, size);
+        pageTable[i].readOnly = FALSE;  
+
             // End code changes by DUSTIN SIMONEAUX // ---------------------------------
     }
-    //delete pageTable;
+    //bitMap->Clear(pageTable[i].physicalPage);
+    //int freePage = bitMap->Find();
+    //bitMap->Clear(pageTable->physicalPage);
+    bitMap->Print();
     
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
     //bzero(machine->mainMemory, size);
-    //memset(buffer, '-', buffer_size);
+
 
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
@@ -220,4 +217,47 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+}
+
+ExceptionType
+AddrSpace::Translate(int vaddr, int *paddr, bool writing)
+{
+    //pageTable = new TranslationEntry[numPages];
+    TranslationEntry *pte;
+    int pfn;
+    int vpn    = vaddr / PageSize;
+    int offset = vaddr % PageSize;
+
+    if (vpn >= numPages) 
+    {
+        return AddressErrorException;
+    }
+    pte = &pageTable[vpn];
+
+    if (writing && pte->readOnly) {
+        return ReadOnlyException;
+    }
+
+    pfn = pte->physicalPage;
+
+    // if the pageFrame is too big, there is something really wrong!
+    // An invalid translation was loaded into the page table or TLB.
+    if (pfn >= NumPhysPages) {
+        //DEBUG(dbgAddr, "Illegal physical page " << pfn);
+        return BusErrorException;
+    }
+    
+    pte->use = TRUE;          // set the use, dirty bits
+
+    if (writing)
+        pte->dirty = TRUE;
+
+    *paddr = pfn*PageSize + offset;
+
+    ASSERT((*paddr < MemorySize));
+
+    //DEBUG(dbgAddr, "AddrSpace::Translate(): vaddr: " << vaddr <<
+    //               ", paddr: " << *paddr);
+
+    return NoException;
 }

@@ -22,9 +22,9 @@
 void
 StartProcess(char *filename)
 {
-    int freePage = bitMap->Find();
+    //int freePage = bitMap->Find();
     //bitMap->Clear(freePage);
-    bitMap->Print();
+    //bitMap->Print();
     OpenFile *executable = fileSystem->Open(filename);
 	
     AddrSpace *space;
@@ -41,15 +41,16 @@ StartProcess(char *filename)
     // End code changes by DUSTIN SIMONEAUX // ------------------------------------
     
     currentThread->space = space;
-    //bitMap->Clear(freePage);
+    
     delete executable;			// close file
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
     
     machine->Run();			// jump to the user progam
-    //ASSERT(FALSE);
+    
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+    //ASSERT(FALSE);
     if (TRUE)             // machine->Run never returns;
     {   printf("Error: Non-normal exit!");        
         Exit(-1);
