@@ -69,6 +69,9 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 {
     NoffHeader noffH;
     unsigned int i, size;
+    int tid;
+    int startPage = 0;
+    
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -93,11 +96,11 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     size = numPages * PageSize;
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-    printf("\n\nAddrSpace: Number of pages: %d\n", numPages);
-    printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
+    //printf("\n\nAddrSpace: Number of pages: %d\n", numPages);
+    //printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
     printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
     
-    if (noffH.code.virtualAddr >= NumPhysPages)    
+    if (numPages >= NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
         printf("Error: Not enough memory to run.\n");
         Exit(-1); 
@@ -110,45 +113,79 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // first, set up the translation 
-    Thread *IPT[NumPhysPages];
-    pageTable = new TranslationEntry[numPages];
-    for (i = 0; i < numPages; i++) {
-            // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-            
-	    pageTable[i].virtualPage = i;	
-        pageTable[i].physicalPage = bitMap->Find(); 
+    else {
+
+    
+        int temp = 0;
+        pageTable = new TranslationEntry[numPages];
+        Thread *IPT[NumPhysPages];
         
-        pageTable[i].valid = TRUE; 
-        pageTable[i].use = FALSE;
-        pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;  
-
-            // End code changes by DUSTIN SIMONEAUX // ---------------------------------
-    }
-    
-    //bitMap->Clear(pageTable[i].physicalPage);
-    //int freePage = bitMap->Find();
-    //bitMap->Clear(pageTable->physicalPage);
-    bitMap->Print();
-    
-    
-// zero out the entire address space, to zero the unitialized data segment 
-// and the stack segment
-    //bzero(machine->mainMemory, size);
-
-    char buffer[size];
-// then, copy in the code and data segments into memory
-    if (noffH.code.size > 0) {
-        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
-			noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-			noffH.code.size, noffH.code.inFileAddr);
-    }
-    if (noffH.initData.size > 0) {
-        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
-			noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-			noffH.initData.size, noffH.initData.inFileAddr);
+        for (i = 0; i < numPages; i++) {
+            int freePage = bitMap->Find();
+                // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+                
+            pageTable[i].virtualPage = i;
+            if (freePage != -1) {
+                startPage += 1;
+            }
+            //if (freePage  ) 
+            //{
+				//for (int k = 0; k < currentThread->space->getNumPages(); k++) 
+				//{
+					//freePage = bitMap->Find();
+				//}
+					
+            //}
+            printf("\nFreePages: %d\n", freePage);
+            
+            if (freePage == -1) 
+            {
+                    
+                    tid = -1 * (threadID + 1);
+                    printf("AddrSpace: Initialization failed (freePage = -1).\n");
+                    printf("AddrSpace: Error code: %d\n", tid);
+                    
+                    if (executable) {
+                        delete executable;
+                    }
+            }
+            
+            pageTable[i].physicalPage = freePage; 
+            //IPT[pageTable[i].physicalPage] = currentThread;
+            
+            pageTable[i].valid = TRUE; 
+            pageTable[i].use = FALSE;
+            pageTable[i].dirty = FALSE;
+            pageTable[i].readOnly = FALSE;  
+            
+            
+                // End code changes by DUSTIN SIMONEAUX // ---------------------------------
+        }
+        bitMap->Print();
+        //bitMap->Clear(pageTable[i].physicalPage);
+        //int freePage = bitMap->Find();
+        //bitMap->Clear(pageTable->physicalPage);
+        
+        
+        
+    // zero out the entire address space, to zero the unitialized data segment 
+    // and the stack segment
+        //bzero(machine->mainMemory, size);
+        memset(machine->mainMemory, 0, size);
+        char buffer[size];
+    // then, copy in the code and data segments into memory
+        if (noffH.code.size > 0) {
+            DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
+                noffH.code.virtualAddr, noffH.code.size);
+            executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+                noffH.code.size, noffH.code.inFileAddr);
+        }
+        if (noffH.initData.size > 0) {
+            DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
+                noffH.initData.virtualAddr, noffH.initData.size);
+            executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+                noffH.initData.size, noffH.initData.inFileAddr);
+        }
     }
     //machine->PrintMemory();
 }
@@ -161,6 +198,11 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 AddrSpace::~AddrSpace()
 {
    delete pageTable;
+}
+
+unsigned int AddrSpace::getNumPages() 
+{
+    return numPages;
 }
 
 //----------------------------------------------------------------------

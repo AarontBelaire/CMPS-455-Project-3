@@ -22,9 +22,10 @@
 void
 StartProcess(char *filename)
 {
-    //int freePage = bitMap->Find();
-    //bitMap->Clear(freePage);
+    int freePage = bitMap->Find();
+    bitMap->Clear(freePage);
     //bitMap->Print();
+    
     OpenFile *executable = fileSystem->Open(filename);
 	
     AddrSpace *space;
@@ -42,20 +43,28 @@ StartProcess(char *filename)
     
     currentThread->space = space;
     
-    delete executable;			// close file
+    if (executable)
+    {
 
-    space->InitRegisters();		// set the initial register values
-    space->RestoreState();		// load page table register
-    
-    machine->Run();			// jump to the user progam
-    
-    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-    //ASSERT(FALSE);
-    if (TRUE)             // machine->Run never returns;
-    {   printf("Error: Non-normal exit!");        
-        Exit(-1);
-    }
-    			
+   
+        delete executable;			// close file
+
+        space->InitRegisters();		// set the initial register values
+        space->RestoreState();		// load page table register
+        //bitMap->Clear(8);
+        machine->Run();			// jump to the user progam
+        
+        // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+        //ASSERT(FALSE);
+        if (TRUE)             // machine->Run never returns;
+        {   printf("Error: Non-normal exit!");        
+            Exit(-1);
+        }
+    }	
+    for (int f = 0; f < currentThread->space->getNumPages(); f++)
+		{
+			bitMap->Clear(f);
+        }		
 	// the address space exits by doing the syscall "exit"
 	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
 }

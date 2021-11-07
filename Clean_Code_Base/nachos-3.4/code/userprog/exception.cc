@@ -26,6 +26,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+
 #include "addrspace.h"   // FA98
 #include "sysdep.h"   // FA98
 
@@ -172,6 +173,7 @@ ExceptionHandler(ExceptionType which)
 					filename[m] = NULL;
 
 				// Free up allocation space and get the file name
+				//int freePage = bitMap->Find();
 				if(!machine->ReadMem(fileAddress,1,&j))return;
 				i = 0;
 				while(j != 0)
@@ -194,7 +196,7 @@ ExceptionHandler(ExceptionType which)
 				
 				// Calculate needed memory space
 				AddrSpace *space;
-
+				
 					// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
 				
@@ -205,6 +207,7 @@ ExceptionHandler(ExceptionType which)
 				if(!currentThread->killNewChild)	// If so...
 				{
 					Thread* execThread = new Thread("thrad!");	// Make a new thread for the process.
+					
 					execThread->space = space;	// Set the address space to the new space.
 					execThread->setID(threadID);	// Set the unique thread ID
 					activeThreads->Append(execThread);	// Put it on the active list.
@@ -229,6 +232,7 @@ ExceptionHandler(ExceptionType which)
 				pc += 4; 
 				machine->WriteRegister(NextPCReg,pc);
 				*/
+				
 				break;	// Get out.*/
 
 			}
@@ -265,23 +269,37 @@ ExceptionHandler(ExceptionType which)
 				//int freePage = bitMap->Find();
 				
 				//bitMap->Clear(AddrSpace.freePage);
+				
+				
+				//bitMap->Clear(arg2);
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
 				{
 					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
 					
-					bitMap->Print();
+					
 				}
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 				
-				//machine->PrintMemory();
-				//freePage = bitMap->Find();
+				//machine->PrintMemory();	
 				
-				bitMap->Clear(arg1);
-				bitMap->Clear(arg2);
-				if(currentThread->space)	// Delete the used memory from the process.
+				if(currentThread->space) 
+				{	// Delete the used memory from the process.
+					
+					
+					//Thread *IPT[NumPhysPages];
+					
+					printf("thread: %d\n", currentThread->space->getNumPages());
+					for (int k = 0; k < currentThread->space->getNumPages(); k++) 
+					{
+						bitMap->Clear(k);
+					}
+						
+					
+					bitMap->Print();
 					delete currentThread->space;
+				}
 				currentThread->Finish();	// Delete the thread.
 				
 				
