@@ -22,9 +22,7 @@
 void
 StartProcess(char *filename)
 {
-    int freePage = bitMap->Find();
-    bitMap->Clear(freePage);
-    //bitMap->Print();
+    //int freePage = bitMap->Find();
     
     OpenFile *executable = fileSystem->Open(filename);
 	
