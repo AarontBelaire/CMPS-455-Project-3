@@ -38,10 +38,15 @@ class AddrSpace {
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch
 
-    // Begin code changes by JOSHUA PLAUCHE // ----------------------------------
+    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+    unsigned int getPages(); 
+    unsigned int getFreePages();
+    // End code changes by DUSTIN SIMONEAUX   // ----------------------------------
+
+    // Begin code changes by JOSHUA PLAUCHE   // ----------------------------------
     OpenFile *execFile;
     char *sfileName;
-    // End code changes by JOSHUA PLAUCHE // ----------------------------------
+    // End code changes by JOSHUA PLAUCHE     // ----------------------------------
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation for now!

@@ -69,16 +69,18 @@ Thread* getID(int toGet)	// Goes through the list of active threads and returns 
 	for(int i = 0; i < size; i++)
 	{
 		tempThread = (Thread*)activeThreads->Remove();	// Pop the top thread off.
-		if (tempThread->getID() == toGet)	// If it's what we're looking for...
+		if (tempThread->getID() == toGet)			// If it's what we're looking for...
 		{
 			toReturn = tempThread;
-			found = true;	// Trip the flag variable, and store the pointer of the thread.
-		}
-		activeThreads->Append(tempThread);	// Put it back onto the active list.
+			found = true;								// Trip the flag variable, and 
+		}												// store the pointer of the thread.
+
+		activeThreads->Append(tempThread);			// Put it back onto the active list.
 	}
 	if (!found)
 		return NULL;
-	else return toReturn;
+	else 
+		return toReturn;
 }
 
 void processCreator(int arg)	// Used when a process first actually runs, not when it is created.
@@ -86,13 +88,19 @@ void processCreator(int arg)	// Used when a process first actually runs, not whe
 	currentThread->space->InitRegisters();		// set the initial register values
     currentThread->space->RestoreState();		// load page table register
 
-	if (threadToBeDestroyed != NULL){
+	if (threadToBeDestroyed != NULL)
+	{
 		delete threadToBeDestroyed;
 		threadToBeDestroyed = NULL;
 	}
 
     machine->Run();			// jump to the user progam
-    ASSERT(FALSE);			// machine->Run never returns;
+    // Replaced ASSERT		// machine->Run never returns;
+	if (TRUE)
+	{
+		printf("ERROR: machine->Run() did not proceed for some reason.");
+		Exit(-1);
+	}
  }
 
 void
@@ -104,7 +112,7 @@ ExceptionHandler(ExceptionType which)
 	int badVPage;
 	int freePage;
 	OpenFile *swapFileExec;
-	// End code changes by JOSHUA PLAUCHE // -------------------------------
+	// End code changes by JOSHUA PLAUCHE   // -------------------------------
 
 	int type = machine->ReadRegister(2);
 
@@ -148,25 +156,42 @@ ExceptionHandler(ExceptionType which)
 			break;
 
 		case SC_Write :
-			for (j = 0; ; j++) {
+			for (j = 0; ; j++) 
+			{
 				if(!machine->ReadMem((arg1+j), 1, &i))
 					j=j-1;
-				else{
+				else
+				{
 					ch[j] = (char) i;
 					if (ch[j] == '\0')
 						break;
 				}
 			}
-			if (j == 0){
+
+			if (j == 0)
+			{
 				printf("\nWrite 0 byte.\n");
 				// SExit(1);
-			} else {
+			} 
+			
+			else 
+			{
 				DEBUG('t', "\nWrite %d bytes from %s to the open file(OpenFileId is %d).", arg2, ch, arg3);
 				SWrite(ch, j, arg3);
 			}
 			break;
 		case SC_Exec :	// Executes a user process inside another user process.
 		   {
+				// Begin code changes by DUSTIN SIMONEAUX // ----------------------------
+			   //printf("thread: %d\n", currentThread->getID()); // For debugging thread number
+
+				// Clears room for next thread to run - Task 2 - mostly for debug purposes now
+				/*for (int k = 0; k < currentThread->space->getPages(); k++)
+				{
+					bitMap->Clear(k);
+				}*/
+
+				// End code changes by DUSTIN SIMONEAUX   // ----------------------------
 
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
@@ -203,30 +228,29 @@ ExceptionHandler(ExceptionType which)
 				// Calculate needed memory space
 				AddrSpace *space;
 
-					// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
+				// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
-
-					// End code changes by DUSTIN SIMONEAUX // ----------------------------------
+				// End code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 				delete executable;
 				// Do we have enough space?
 				if(!currentThread->killNewChild)	// If so...
 				{
-					Thread* execThread = new Thread("thrad!");	// Make a new thread for the process.
-					execThread->space = space;	// Set the address space to the new space.
-					execThread->setID(threadID);	// Set the unique thread ID
-					activeThreads->Append(execThread);	// Put it on the active list.
-					machine->WriteRegister(2, threadID);	// Return the thread ID as our Exec return variable.
-					threadID++;	// Increment the total number of threads.
+					Thread* execThread = new Thread("thrad!");					// Make a new thread for the process.
+					execThread->space = space;										// Set the address space to the new space.
+					execThread->setID(threadID);								// Set the unique thread ID
+					activeThreads->Append(execThread);					// Put it on the active list.
+					machine->WriteRegister(2, threadID);			// Return the thread ID as our Exec return variable.
+					threadID++;											// Increment the total number of threads.
 					execThread->Fork(processCreator, 0);	// Fork it.
 				}
 				else	// If not...
 				{
-					machine->WriteRegister(2, -1 * (threadID + 1));	// Return an error code
-					currentThread->killNewChild = true;	// Reset our variable
+					machine->WriteRegister(2, -1 * (threadID + 1));		// Return an error code
+					currentThread->killNewChild = true;					// Reset our variable
 				}
 
-				/*
+				/* This was in the documentation, but havent seen a way to use it.
 				int pc;
 				pc = machine->ReadRegister(PCReg);
 
@@ -237,6 +261,7 @@ ExceptionHandler(ExceptionType which)
 				pc += 4;
 				machine->WriteRegister(NextPCReg,pc);
 				*/
+
 				break;	// Get out.*/
 
 			}
@@ -254,10 +279,10 @@ ExceptionHandler(ExceptionType which)
 					if(!currentThread->isJoined)	// And it's not already joined...
 					{
 						printf("Joining process %i with process %i.  Thread %i now shutting down.\n", getID(arg1)->getID(), currentThread->getID(), currentThread->getID());	// Inform the user.
-						getID(arg1)->setParent(currentThread);	// Set the process' parent to the current thread.
-						currentThread->isJoined = true;	// Let the parent know it has a child
+						getID(arg1)->setParent(currentThread);		// Set the process' parent to the current thread.
+						currentThread->isJoined = true;			// Let the parent know it has a child
 						(void) interrupt->SetLevel(IntOff);	// Disable interrupts for Sleep();
-						currentThread->Sleep();	// Put the current thread to sleep.
+						currentThread->Sleep();				// Put the current thread to sleep.
 						break;
 					}
 					else{	// We've got an error message.
@@ -270,32 +295,40 @@ ExceptionHandler(ExceptionType which)
 			}
 			case SC_Exit :	// Exit a process.
 			{
-				// Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
+				// Begin code changes by DUSTIN SIMONEAUX // --------------------
 				//int freePage = bitMap->Find();
-
-				//bitMap->Clear(AddrSpace.freePage);
+				//for (int z = 0; z < currentThread->space->getPages; z++)
+				//{
+				//		bitMap->Clear(machine->pageTable[z].physicalPage); // clear bits used by exiting thread
+				//}
+				
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
 				{
 					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
 
-					bitMap->Print();
+					//bitMap->Print(); // print bitmap (for debug purposes)
+					// End code changes by DUSTIN SIMONEAUX   // --------------------
 				}
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 
-				//machine->PrintMemory();
-				//freePage = bitMap->Find();
+				// Begin code changes by DUSTIN SIMONEAUX // --------------------
+				//machine->PrintMemory(); 	// For debugging memory
+				// End code changes by DUSTIN SIMONEAUX   // --------------------
 
 				if(currentThread->space)	// Delete the used memory from the process.
 				{
 					// Begin code changes by JOSHUA PLAUCHE // -------------------------------
-					fileSystem->Remove(currentThread->space->sfileName);
-					// End code changes by JOSHUA PLAUCHE // -------------------------------
+					fileSystem->Remove(currentThread->space->sfileName); // remove swapfile
+					// End code changes by JOSHUA PLAUCHE   // -------------------------------
+
+					// Begin code changes by DUSTIN SIMONEAUX // --------------------
+					//bitMap->Print(); // print bitmap (for debug purposes)
+					// End code changes by DUSTIN SIMONEAUX   // --------------------
 					delete currentThread->space;
 				}
 				currentThread->Finish();	// Delete the thread.
-				// End code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 
 				break;
 			}
@@ -321,41 +354,57 @@ ExceptionHandler(ExceptionType which)
 	case ReadOnlyException :
 		printf("ERROR: ReadOnlyException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
+				//ASSERT(FALSE);  //Not the way of handling an exception.
+		// Begin code changes by DUSTIN SIMONEAUX // ---------------------------
+		// Replaced Assert
+			if (TRUE)
+			{
+				printf("ERROR: BAD EXIT FROM READ ONLY EXCEPTION.");
+				Exit(-1);
+			}
+		// End code changes by DUSTIN SIMONEAUX   // ---------------------------
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
 		break;
 
-		// Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
-
+		// Begin code changes by DUSTIN SIMONEAUX and JOSHUA PLAUCHE // --------------------
 	case PageFaultException :
 		// 1.)
 		//	Increase pageFault stats ( You can create a separate page fault
 		//	variable to keep track of it). There is already stats->numPageFaults
 		//	defined which you can simply increase during page fault.
-
-		// End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
-
-		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
 		stats->numPageFaults++;
 
+		// 2.)
+		//	Get the address that caused page fault,
+		//		badVAddr = machine->ReadRegister(BadVAddrReg);
 		badVAddr = machine->ReadRegister(BadVAddrReg);
 
+		// 3.)
+		//	Calculate the virtual page, badVPage = badVAddr/PageSize.
 		badVPage = badVAddr/PageSize;
 
+		// 4.)
+		//	Find a physical page:
+		//		freePage = bitMap->find()
 		freePage = bitMap->Find();
 		if (freePage == -1)
 		{
-			printf("There are no available pages terminating nachOS\n");
+			printf("ERROR: There are no available pages. Exiting...\n");
 			Exit(1);
 		}
+		// End code changes by DUSTIN SIMONEAUX and JOSHUA PLAUCHE   // --------------------
 
-		machine->pageTable[badVPage].physicalPage = freePage;
-		machine->pageTable[badVPage].valid = TRUE;
+		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
 
+		machine->pageTable[badVPage].physicalPage = freePage; // re-assign badVpage to freePage
+		machine->pageTable[badVPage].valid = TRUE;				// Set valid bit to true
 
-		// printf("Here is the numPageFaults: %i\n Here is the bad address: %i\n Here is the bad page: %i\n", stats->numPageFaults, badVAddr, badVPage);
+		// Debug prints
+		//printf("\n+-----+\nnumPageFaults: 				%i\n", stats->numPageFaults);
+		//printf("\nbad virtual address: 			%i\n", badVAddr);
+		//printf("\nbad virtual page: 			%i\n+-----+\n", badVPage);
 
 		swapFileExec = fileSystem->Open(currentThread->space->sfileName);
 
@@ -364,12 +413,19 @@ ExceptionHandler(ExceptionType which)
 		delete swapFileExec;
 
 		break;
-		// End code changes by JOSHUA PLAUCHE // -------------------------------
+		// End code changes by JOSHUA PLAUCHE   // -------------------------------
 
 	case BusErrorException :
 		printf("ERROR: BusErrorException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
+			//ASSERT(FALSE);  //Not the way of handling an exception.
+			// Begin code changes by DUSTIN SIMONEAUX // --------------------------------------
+			if (TRUE)
+			{
+				printf("\nAbnormal Exit: Bus Error Exception error on main thread.\n");
+				Exit(-1);
+			}
+		// End code changes by DUSTIN SIMONEAUX // ----------------------------------------
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.

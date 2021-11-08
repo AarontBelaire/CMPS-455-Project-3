@@ -19,12 +19,16 @@
 // 	Run a user program.  Open the executable, load it into
 //	memory, and jump to it.
 //----------------------------------------------------------------------
+
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+int runs = 0; // debugging variable for simply keeping track of 
+              // each time StartProcess is executed
 void
 StartProcess(char *filename)
 {
-    //int freePage = bitMap->Find();
-    //bitMap->Clear(freePage);
-    //bitMap->Print();
+    runs = runs + 1;
+// End code changes by DUSTIN SIMONEAUX   // ----------------------------------
+
     OpenFile *executable = fileSystem->Open(filename);
 	
     AddrSpace *space;
@@ -36,27 +40,28 @@ StartProcess(char *filename)
     }
 
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-	    // passing 0 as argument as this is the location for main thread
+	// passing 0 as argument as this is the location for main thread
     space = new AddrSpace(executable, 0);
-    // End code changes by DUSTIN SIMONEAUX // ------------------------------------
     
     currentThread->space = space;
     
-    delete executable;			// close file
+    if (executable)
+    {
+        delete executable;			// close file
 
-    space->InitRegisters();		// set the initial register values
-    space->RestoreState();		// load page table register
-    
-    machine->Run();			// jump to the user progam
-    
-    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-    //ASSERT(FALSE);
-    if (TRUE)             // machine->Run never returns;
-    {   printf("Error: Non-normal exit!");        
-        Exit(-1);
-    }
-    			
+        space->InitRegisters();		// set the initial register values
+        space->RestoreState();		// load page table register
+        
+        machine->Run();			    // jump to the user progam
+        
+        // Replaced ASSERT
+        if (TRUE)                   // machine->Run never returns;
+        {   printf("Error: Non-normal exit!");        
+            Exit(-1);
+        }
+    }			
 	// the address space exits by doing the syscall "exit"
+    
 	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
 }
 
