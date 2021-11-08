@@ -31,20 +31,16 @@ extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
 extern int threadChoice;
-// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+// Begin code changes by DUSTIN SIMONEAUX  // ----------------------------------
 extern BitMap *bitMap; // Declaring a global bitmap variable
-// END code changes by DUSTIN SIMONEAUX // ----------------------------------
-// Begin code changes by Jeremy St. Julien
+// END code changes by DUSTIN SIMONEAUX    // ----------------------------------
+// Begin code changes by Jeremy St. Julien // ----------------------------------
 extern int memChoice;
 extern List *pageList;
 extern Thread* IPT2 [32];
 extern bool output;
-// End code changes by Jeremy St. Julien
-
-#ifdef USER_PROGRAM
-#include "machine.h"
+// End code changes by Jeremy St. Julien   // ----------------------------------
 extern Machine* machine;	// user program memory and registers
-extern List* activeThreads;	// active thread list for process management
 extern int threadID;	// unique process id
 #endif
 

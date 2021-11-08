@@ -125,38 +125,32 @@ Initialize(int argc, char **argv)
 			threadChoice = atoi(*(argv+1));
 	    argCount = 2;
 	} 
-	// Begin Code changes made by Jeremy St. Julien
-	else if (!strcmp (*argv, "-V"))
-	{
-		if (*(argv+1) == NULL)
-		{
-			memChoice = 0;
-			printf ("Disabling Virtual Memory, will use Demand Paging");
-		}
+	// Begin code changes by Jeremy St. Julien // ----------------------------------
+    else if (!strcmp (*argv, "-V"))
+    {
+        if (*(argv+1) == NULL)
+        {
+            memChoice = 0;
+            printf ("Disabling Virtual Memory, will use Demand Paging");
+        }
 
-		else
-		{
-			memChoice = atoi (*(argv+1));
-			if (memChoice == 1)
-			{
-				printf("Using FIFO Page Replacement");
-			} else if (memChoice == 2) 
-			{
-				printf("Using Random Page Replacement");
-			} else
-			{
-				printf ("Disabling Virtual Memory, will use Demand Paging");
-			}
-			
-		}
+        else 
+        {
+            memChoice = atoi(*(argv+1));
+            if (memChoice == 1) printf("Using FIFO Page Replacement");
+				 
+			else if (memChoice == 2) printf("Using Random Page Replacement");
+            
+			else printf("Disabling Virtual Memory, will use Demand Paging");
+              
+        }
 	}
 	else if (!strcmp(*argv, "-E"))
-	{
-		output = TRUE;
-	}
+    {
+        output = TRUE;
+    }
 	
-	// End code changes by Jeremy St. Julien
-		
+	// Begin code changes by Jeremy St. Julien // ----------------------------------
 #ifdef USER_PROGRAM
 	if (!strcmp(*argv, "-s"))
 	    debugUserProg = TRUE;

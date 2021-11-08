@@ -324,11 +324,11 @@ ExceptionHandler(ExceptionType which)
 				// Begin code changes by DUSTIN SIMONEAUX // --------------------
 				//machine->PrintMemory(); 	// For debugging memory
 				// End code changes by DUSTIN SIMONEAUX   // --------------------
-
+				fileSystem->Remove(currentThread->space->sfileName); // remove swapfile
 				if(currentThread->space)	// Delete the used memory from the process.
 				{
 					// Begin code changes by JOSHUA PLAUCHE // -------------------------------
-					fileSystem->Remove(currentThread->space->sfileName); // remove swapfile
+					
 					// End code changes by JOSHUA PLAUCHE   // -------------------------------
 
 					// Begin code changes by DUSTIN SIMONEAUX // --------------------
