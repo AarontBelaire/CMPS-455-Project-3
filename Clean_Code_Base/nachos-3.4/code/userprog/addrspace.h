@@ -41,6 +41,7 @@ class AddrSpace {
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
     unsigned int getPages(); 
     unsigned int getFreePages();
+    char* name;
     // End code changes by DUSTIN SIMONEAUX   // ----------------------------------
 
     // Begin code changes by JOSHUA PLAUCHE   // ----------------------------------

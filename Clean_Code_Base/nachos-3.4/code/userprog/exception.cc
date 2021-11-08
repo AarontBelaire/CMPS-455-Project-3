@@ -198,6 +198,9 @@ ExceptionHandler(ExceptionType which)
 				{
 					bitMap->Clear(k);
 				}*/
+				printf("\n\nNumber of pages: %d\n", currentThread->space->getPages());  // for debugging number of pages
+				printf("\n\nPage Size: %d", PageSize);
+				
 
 				// End code changes by DUSTIN SIMONEAUX   // ----------------------------
 
@@ -315,7 +318,7 @@ ExceptionHandler(ExceptionType which)
 				{
 					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
 
-					//bitMap->Print(); // print bitmap (for debug purposes)
+					bitMap->Print(); // print bitmap (for debug purposes)
 					// End code changes by DUSTIN SIMONEAUX   // --------------------
 				}
 				else
@@ -456,7 +459,7 @@ ExceptionHandler(ExceptionType which)
 					printf("Error: Not enough money to allocate. \n");
 					printf("Exiting NachOS. \n");
 					fileSystem->Remove(currentThread->space->name);
-					Exit(0);
+					Exit(-1);
 				}
 				else
 				{
@@ -504,7 +507,7 @@ ExceptionHandler(ExceptionType which)
 						{
 							printf("Page fault: Process %d requests virtual page %d\n", threadID, badVPage);
 							printf("Assigning physichal page: %d\n", bitMapNum);
-							printf("Virtual apge %d removed\n", badVPage);
+							printf("Virtual page %d removed\n", badVPage);
 						}
 						delete file;
 					}
