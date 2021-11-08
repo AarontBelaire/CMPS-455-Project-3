@@ -149,13 +149,14 @@ Initialize(int argc, char **argv)
 			}
 			
 		}
+	}
 	else if (!strcmp(*argv, "-E"))
 	{
 		output = TRUE;
 	}
+	
 	// End code changes by Jeremy St. Julien
 		
-	}
 #ifdef USER_PROGRAM
 	if (!strcmp(*argv, "-s"))
 	    debugUserProg = TRUE;
