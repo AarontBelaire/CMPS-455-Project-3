@@ -400,7 +400,7 @@ ExceptionHandler(ExceptionType which)
 		if (freePage == -1)
 		{
 			printf("ERROR: There are no available pages. Exiting...\n");
-			Exit(1);
+			Exit(-1);
 		}
 		// End code changes by DUSTIN SIMONEAUX and JOSHUA PLAUCHE   // --------------------
 
@@ -421,8 +421,8 @@ ExceptionHandler(ExceptionType which)
 		delete swapFileExec;
 
 		break;
-		// End code changes by JOSHUA PLAUCHE   // -------------------------------
-*/
+		// End code changes by JOSHUA PLAUCHE   // -------------------------------*/
+
 // Begin code changes by Jeremy St. Julien
 
 	case PageFaultException :
@@ -430,7 +430,101 @@ ExceptionHandler(ExceptionType which)
 			badVAddr = machine->ReadRegister(BadVAddrReg);
 			badVPage = badVAddr / PageSize;
 			bitMapNum = bitMap->Find();
+
+			stats->numPageFaults++;
+
+			int pageToReplace = -1;
+
+			switch (memChoice)
+			{
+				case 1: // FIFO
+					if (bitMapNum == -1)
+						pageToReplace = (int)pageList->Remove();
+					else
+						pageToReplace = bitMapNum;
+					break;
+				case 2: // Random
+					pageToReplace = (Random () % 31);
+					break;
+				default: // Default Paging, other, or error, disable virtual memory
+					break;
+			}
+			if (pageToReplace == -1) // Demand Paging
+			{
+				if (bitMapNum == -1)
+				{
+					printf("Error: Not enough money to allocate. \n");
+					printf("Exiting NachOS. \n");
+					fileSystem->Remove(currentThread->space->name);
+					Exit(0);
+				}
+				else
+				{
+					OpenFile * file = fileSystem->Open(currentThread->space->name);
+					file->ReadAt(&(machine->mainMemory[(bitMapNum*PageSize)]), PageSize, badVPage*PageSize);
+					delete file;
+					if (output)
+					{
+						printf("Page fault: Process %d requests virtual page %d\n", threadID, badVPage);
+						printf("Assigning physichal page: %d\n", bitMapNum);
+					}
+					currentThread->space->UpdatePage(badVPage,bitMapNum);					
+				}
+			}
+			else // Virtual Memory
+			{
+				if (bitMapNum != -1)
+				{
+					OpenFile * file = fileSystem->Open(currentThread->space->name);
+					file->ReadAt(&(machine->mainMemory[(bitMapNum*PageSize)]), PageSize, badVPage*PageSize);
+					delete file;
+
+					if (output)
+					{
+						printf("Page fault: Process %d requests virtual page %d\n", threadID, badVPage);
+						printf("Assigning physichal page: %d\n", bitMapNum);
+					}
+
+					currentThread->space->UpdatePage(badVPage,bitMapNum);
+					IPT[pageToReplace] = currentThread;
+					if (memChoice == 1)
+					{
+						pageList->Append((int*)pageToReplace);
+					}
+				}
+				else
+				{
+					if(IPT[pageToReplace]->space->IsDirty(pageToReplace))
+					{
+						OpenFile * file = fileSystem->Open (IPT[pageToReplace]->space->name);
+						file->WriteAt(&(machine->mainMemory[pageToReplace*PageSize]), PageSize, badVPage*PageSize);
+						IPT[pageToReplace]->space->SetValidFalse(badVPage);
+
+						if (output)
+						{
+							printf("Page fault: Process %d requests virtual page %d\n", threadID, badVPage);
+							printf("Assigning physichal page: %d\n", bitMapNum);
+							printf("Virtual apge %d removed\n", badVPage);
+						}
+						delete file;
+					}
+
+					OpenFile * file = fileSystem->Open(currentThread->space->name);
+					file->ReadAt(&(machine->mainMemory[bitMapNum*PageSize]), PageSize, badVPage*PageSize);
+					delete file;
+
+					IPT[pageToReplace] = currentThread;
+
+					if (memChoice == 1)
+					{
+						pageList->Append((int*)pageToReplace);
+					}
+				}
+				
+			}
+
 	}
+	
 
 	case BusErrorException :
 		printf("ERROR: BusErrorException, called by thread %i.\n",currentThread->getID());
