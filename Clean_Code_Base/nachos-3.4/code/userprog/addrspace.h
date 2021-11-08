@@ -44,7 +44,6 @@ class AddrSpace {
     // End code changes by DUSTIN SIMONEAUX   // ----------------------------------
 
     // Begin code changes by JOSHUA PLAUCHE   // ----------------------------------
-    OpenFile *execFile;
     char *sfileName;
     // End code changes by JOSHUA PLAUCHE     // ----------------------------------
 

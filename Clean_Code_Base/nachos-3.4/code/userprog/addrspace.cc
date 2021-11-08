@@ -72,10 +72,6 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     unsigned int i, size;
     int threadNum;
 
-    // Begin code changes by JOSHUA PLAUCHE // -------------------------------
-    execFile = executable;             /* Creates separate variable to hold executable */
-    // End code changes by JOSHUA PLAUCHE   // -------------------------------
-
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
