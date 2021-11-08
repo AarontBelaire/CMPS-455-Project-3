@@ -69,11 +69,11 @@ Thread* getID(int toGet)	// Goes through the list of active threads and returns 
 	for(int i = 0; i < size; i++)
 	{
 		tempThread = (Thread*)activeThreads->Remove();	// Pop the top thread off.
-		if (tempThread->getID() == toGet)			// If it's what we're looking for...
+		if (tempThread->getID() == toGet)					// If it's what we're looking for...
 		{
 			toReturn = tempThread;
-			found = true;								// Trip the flag variable, and 
-		}												// store the pointer of the thread.
+			found = true;									// Trip the flag variable, and 
+		}														// store the pointer of the thread.
 
 		activeThreads->Append(tempThread);			// Put it back onto the active list.
 	}
@@ -95,18 +95,18 @@ void processCreator(int arg)	// Used when a process first actually runs, not whe
 	}
 
     machine->Run();			// jump to the user progam
-    // Replaced ASSERT		// machine->Run never returns;
-	if (TRUE)
+    								// machine->Run never returns;
+	// Begin code changes by DUSTIN SIMONEAUX // -----------------------------
+	if (TRUE) 	// Replaced ASSERT
 	{
 		printf("ERROR: machine->Run() did not proceed for some reason.");
 		Exit(-1);
 	}
+	// End code changes by DUSTIN SIMONEAUX   // -----------------------------
  }
 
-void
-ExceptionHandler(ExceptionType which)
+void ExceptionHandler(ExceptionType which)
 {
-
 	// Begin code changes by JOSHUA PLAUCHE // -------------------------------
 	int badVAddr;
 	int badVPage;
@@ -185,27 +185,25 @@ ExceptionHandler(ExceptionType which)
 				// Begin code changes by DUSTIN SIMONEAUX // ----------------------------
 			   //printf("thread: %d\n", currentThread->getID()); // For debugging thread number
 
-				// Clears room for next thread to run - Task 2 - mostly for debug purposes now
+				// Clears room for next thread to run - (Task 2) - mostly for debug/testing purposes now
 				/*for (int k = 0; k < currentThread->space->getPages(); k++)
 				{
 					bitMap->Clear(k);
 				}*/
-
 				// End code changes by DUSTIN SIMONEAUX   // ----------------------------
 
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
 				// Retrieve the address of the filename
-				int fileAddress = arg1; // retrieve argument stored in register r4
-
-				// Read file name into the kernel space
-				char *filename = new char[100];
+				int fileAddress = arg1; 			// retrieve argument stored in register r4
+	
+				char *filename = new char[100]; 	// Read file name into the kernel space
 
 				for(int m = 0; m < 100; m++)
 					filename[m] = NULL;
 
-				// Free up allocation space and get the file name
-				if(!machine->ReadMem(fileAddress,1,&j))return;
+				
+				if(!machine->ReadMem(fileAddress,1,&j))return; // Free up allocation space and get the file name
 				i = 0;
 				while(j != 0)
 				{
@@ -214,8 +212,7 @@ ExceptionHandler(ExceptionType which)
 					i++;
 					if(!machine->ReadMem(fileAddress,1,&j))return;
 				}
-				// Open File
-				OpenFile *executable = fileSystem->Open(filename);
+				OpenFile *executable = fileSystem->Open(filename); 	// Open File
 
 				if (executable == NULL)
 				{
@@ -225,15 +222,14 @@ ExceptionHandler(ExceptionType which)
 				}
 				delete filename;
 
-				// Calculate needed memory space
-				AddrSpace *space;
+				AddrSpace *space;		// Calculate needed memory space
 
 				// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
 				// End code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 				delete executable;
-				// Do we have enough space?
+															// Do we have enough space?
 				if(!currentThread->killNewChild)	// If so...
 				{
 					Thread* execThread = new Thread("thrad!");					// Make a new thread for the process.
@@ -246,12 +242,12 @@ ExceptionHandler(ExceptionType which)
 				}
 				else	// If not...
 				{
-					machine->WriteRegister(2, -1 * (threadID + 1));		// Return an error code
-					currentThread->killNewChild = true;					// Reset our variable
+					machine->WriteRegister(2, -1 * (threadID + 1));		// Return an error code.
+					currentThread->killNewChild = true;					// Reset our variable.
 				}
 
-				/* This was in the documentation, but havent seen a way or reason to use it.
-				int pc;
+				// This was in the documentation, but havent seen a way or reason to use it.
+				/*int pc;
 				pc = machine->ReadRegister(PCReg);
 
 				machine->WriteRegister(PrevPCReg,pc);
@@ -259,10 +255,9 @@ ExceptionHandler(ExceptionType which)
 				machine->WriteRegister(PCReg,pc);
 
 				pc += 4;
-				machine->WriteRegister(NextPCReg,pc);
-				*/
+				machine->WriteRegister(NextPCReg,pc);*/
 
-				break;	// Get out.*/
+				break;	// Get out.
 
 			}
 			case SC_Join :	// Join one process to another.
@@ -295,7 +290,7 @@ ExceptionHandler(ExceptionType which)
 			}
 			case SC_Exit :	// Exit a process.
 			{
-				// Begin code changes by DUSTIN SIMONEAUX // --------------------
+			// Begin code changes by DUSTIN SIMONEAUX // --------------------
 				//int freePage = bitMap->Find();
 				/*for (int z = 0; z < currentThread->space->getPages(); z++)
 				{
@@ -308,39 +303,37 @@ ExceptionHandler(ExceptionType which)
 					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
 
 					//bitMap->Print(); // print bitmap (for debug purposes)
-					// End code changes by DUSTIN SIMONEAUX   // --------------------
+			// End code changes by DUSTIN SIMONEAUX   // --------------------
 				}
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 
-				// Begin code changes by DUSTIN SIMONEAUX // --------------------
+			// Begin code changes by DUSTIN SIMONEAUX // --------------------
 				//machine->PrintMemory(); 	// For debugging memory
-				// End code changes by DUSTIN SIMONEAUX   // --------------------
-				fileSystem->Remove(currentThread->space->sfileName); // remove swapfile
+			// End code changes by DUSTIN SIMONEAUX   // --------------------
 				if(currentThread->space)	// Delete the used memory from the process.
 				{
-					// Begin code changes by JOSHUA PLAUCHE // -------------------------------
-					
-					// End code changes by JOSHUA PLAUCHE   // -------------------------------
+			// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+					fileSystem->Remove(currentThread->space->sfileName); // remove swapfile
+			// End code changes by JOSHUA PLAUCHE   // -------------------------------
 
-					// Begin code changes by DUSTIN SIMONEAUX // --------------------
+			// Begin code changes by DUSTIN SIMONEAUX // --------------------
 					//bitMap->Print(); // print bitmap (for debug purposes)
-					// End code changes by DUSTIN SIMONEAUX   // --------------------
+			// End code changes by DUSTIN SIMONEAUX   // --------------------
 					delete currentThread->space;
 				}
 				currentThread->Finish();	// Delete the thread.
 
 				break;
 			}
-           case SC_Yield :	// Yield to a new process.
+           case SC_Yield :					// Yield to a new process.
 		   {
 			   printf("SYSTEM CALL: Yield, called by thread %i.\n",currentThread->getID());
 
-			   //Save the registers and yield CPU control.
-			   currentThread->space->SaveState();
-			   currentThread->Yield();
-			   //When the thread comes back, restore its registers.
-			   currentThread->space->RestoreState();
+			   
+			   currentThread->space->SaveState(); 		//Save the registers 
+			   currentThread->Yield();						// and yield CPU control.
+			   currentThread->space->RestoreState();	 //When the thread comes back, restore its registers.
 
                break;
 			}
@@ -356,8 +349,7 @@ ExceptionHandler(ExceptionType which)
 		if (currentThread->getName() == "main")
 				//ASSERT(FALSE);  //Not the way of handling an exception.
 		// Begin code changes by DUSTIN SIMONEAUX // ---------------------------
-		// Replaced Assert
-			if (TRUE)
+			if (TRUE)		// Replaced Assert
 			{
 				printf("ERROR: BAD EXIT FROM READ ONLY EXCEPTION.");
 				Exit(-1);
@@ -370,24 +362,24 @@ ExceptionHandler(ExceptionType which)
 
 		// Begin code changes by DUSTIN SIMONEAUX and JOSHUA PLAUCHE // --------------------
 	case PageFaultException :
-		// 1.)
-		//	Increase pageFault stats ( You can create a separate page fault
-		//	variable to keep track of it). There is already stats->numPageFaults
-		//	defined which you can simply increase during page fault.
+		/*  1.)
+			Increase pageFault stats ( You can create a separate page fault
+			variable to keep track of it). There is already stats->numPageFaults
+			defined which you can simply increase during page fault. */
 		stats->numPageFaults++;
 
-		// 2.)
-		//	Get the address that caused page fault,
-		//		badVAddr = machine->ReadRegister(BadVAddrReg);
+		/*  2.)
+			Get the address that caused page fault,
+				badVAddr = machine->ReadRegister(BadVAddrReg);*/
 		badVAddr = machine->ReadRegister(BadVAddrReg);
 
-		// 3.)
-		//	Calculate the virtual page, badVPage = badVAddr/PageSize.
+		/*  3.)
+			Calculate the virtual page, badVPage = badVAddr/PageSize.*/
 		badVPage = badVAddr/PageSize;
 
-		// 4.)
-		//	Find a physical page:
-		//		freePage = bitMap->find()
+		/*  4.)
+			Find a physical page:
+				freePage = bitMap->find();*/
 		freePage = bitMap->Find();
 		if (freePage == -1)
 		{
@@ -397,7 +389,6 @@ ExceptionHandler(ExceptionType which)
 		// End code changes by DUSTIN SIMONEAUX and JOSHUA PLAUCHE   // --------------------
 
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
-
 		machine->pageTable[badVPage].physicalPage = freePage; // re-assign badVpage to freePage
 		machine->pageTable[badVPage].valid = TRUE;				// Set valid bit to true
 

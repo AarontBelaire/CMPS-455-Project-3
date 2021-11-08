@@ -21,10 +21,8 @@
 //----------------------------------------------------------------------
 
 // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-int runs = 0; // debugging variable for simply keeping track of 
-              // each time StartProcess is executed
-void
-StartProcess(char *filename)
+int runs = 0; // Simply keeps track of each time StartProcess is executed
+void StartProcess(char *filename)
 {
     runs = runs + 1;
 // End code changes by DUSTIN SIMONEAUX   // ----------------------------------
@@ -40,8 +38,7 @@ StartProcess(char *filename)
     }
 
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-	// passing 0 as argument as this is the location for main thread
-    space = new AddrSpace(executable, 0);
+    space = new AddrSpace(executable, 0); // passing 0 as argument as this is the location for main thread
     
     currentThread->space = space;
     

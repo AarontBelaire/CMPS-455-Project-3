@@ -65,9 +65,7 @@ int freePage;
 // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
 AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 // End code changes by DUSTIN SIMONEAUX   // -------------------------------
-
 {
-
     NoffHeader noffH;
     unsigned int i, size;
     int threadNum;
@@ -78,20 +76,15 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     	SwapHeader(&noffH);
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-    
-    // Replaced ASSERT
-    if (noffH.noffMagic != NOFFMAGIC)
-    {
+    if (noffH.noffMagic != NOFFMAGIC){// Replaced ASSERT
         printf("Exiting Error: Not in NOFF format.\n");
         Exit(-1);
     }
     // End code changes by DUSTIN SIMONEAUX   // -------------------------------
 
-    // how big is address space?
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize;
+    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; // how big is address space?
 
-    // we need to increase the size to leave room for the stack
-    numPages = divRoundUp(size, PageSize);
+    numPages = divRoundUp(size, PageSize); // Increase the size to leave room for the stack
     size = numPages * PageSize;
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
@@ -103,17 +96,15 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         Exit(-1);
         delete pageTable;
     }
-
     //DEBUG('a', "Initializing address space, num pages %d, size %d\n", numPages, size);
 
-    // first, set up the translation
-    pageTable = new TranslationEntry[numPages];
-    Thread *IPT[NumPhysPages]; // Creation of inverted page table thread ref.
+    pageTable = new TranslationEntry[numPages]; // First, set up the translation.
+    Thread *IPT[NumPhysPages];                  // Creation of inverted page table thread ref.
 
     for (i = 0; i < numPages; i++) 
     {
-        //freePage = bitMap->Find(); // initializes bitmap to freePage
-        //printf("\nFreePages: %d\n", freePage); // For debugging freePages
+        //freePage = bitMap->Find();                // Initializes bitmap to freePage.
+        //printf("\nFreePages: %d\n", freePage);    // For debugging freePages.
         if (freePage == -1)
         {
             threadNum = -1 * (threadID + 1);
@@ -123,13 +114,13 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 	    pageTable[i].virtualPage = i;
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
         pageTable[i].valid = FALSE;
-		// End code changes by JOSHUA PLAUCHE // -------------------------------
+		// End code changes by JOSHUA PLAUCHE   // -------------------------------
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;
     }
-    //bitMap->Print();      // Print statement for debugging bitmap
-    //memset(machine->mainMemory, 0, size); // zeros out memory
+    //bitMap->Print();                      // Print statement for debugging bitmap
+    //memset(machine->mainMemory, 0, size); // Zeros out memory
     // End code changes by DUSTIN SIMONEAUX   // ---------------------------------
 
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
@@ -141,8 +132,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
 		OpenFile *swapFile = fileSystem->Open(name); // opens swapfile
 
-        // creates buffer for swapfile
-		char *swbuffer = new char[noffH.code.size + noffH.initData.size + noffH.uninitData.size];
+		char *swbuffer = new char[noffH.code.size + noffH.initData.size + noffH.uninitData.size]; // creates buffer for swapfile
 
         // Reading and writing data and code of swapfile
 		executable->ReadAt(swbuffer, noffH.code.size + noffH.initData.size + noffH.uninitData.size, sizeof(noffH));
