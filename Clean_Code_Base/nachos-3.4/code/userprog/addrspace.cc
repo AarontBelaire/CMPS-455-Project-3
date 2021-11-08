@@ -177,14 +177,14 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 AddrSpace::~AddrSpace()
 {
 // Begin code changes by DUSTIN SIMONEAUX // ---------------------------
-    //for (int i = 0; i < numPages; i++)
-    //{
-    //    if (pageTable[i].valid)
-    //    {
-    //        DEBUG('v', "Clear physical page #%d\n", pageTable[i].physicalPage);
-    //        bitMap->Clear(pageTable[i].physicalPage);
-    //    }
-    //}
+    /* for (int i = 0; i < numPages; i++)
+    {
+        if (pageTable[i].valid)
+        {
+            DEBUG('v', "Clear physical page #%d\n", pageTable[i].physicalPage);
+            bitMap->Clear(pageTable[i].physicalPage);
+        }
+    }*/
     delete pageTable;
 }
 
