@@ -250,7 +250,7 @@ ExceptionHandler(ExceptionType which)
 					currentThread->killNewChild = true;					// Reset our variable
 				}
 
-				/* This was in the documentation, but havent seen a way to use it.
+				/* This was in the documentation, but havent seen a way or reason to use it.
 				int pc;
 				pc = machine->ReadRegister(PCReg);
 

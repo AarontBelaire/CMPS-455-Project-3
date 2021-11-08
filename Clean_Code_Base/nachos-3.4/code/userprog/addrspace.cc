@@ -95,8 +95,6 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     size = numPages * PageSize;
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-    //printf("\n\nNumber of pages: %d\n", numPages);  // for debugging number of pages
-    //printf("Thread ID: %d\n", currentThread->getID()); // for debugging thread number
 
     // Removed ASSERT
     if (noffH.code.virtualAddr >= NumPhysPages)
@@ -124,7 +122,6 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         }
 	    pageTable[i].virtualPage = i;
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
-        //pageTable[i].physicalPage = bitMap->Find();
         pageTable[i].valid = FALSE;
 		// End code changes by JOSHUA PLAUCHE // -------------------------------
         pageTable[i].use = FALSE;
