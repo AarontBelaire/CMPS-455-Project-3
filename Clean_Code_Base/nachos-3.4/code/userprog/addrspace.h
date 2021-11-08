@@ -40,6 +40,7 @@ class AddrSpace {
 
     // Begin code changes by JOSHUA PLAUCHE // ----------------------------------
     TranslationEntry *pageTable;
+    OpenFile *execFile;
     // End code changes by JOSHUA PLAUCHE // ----------------------------------
 
   private:

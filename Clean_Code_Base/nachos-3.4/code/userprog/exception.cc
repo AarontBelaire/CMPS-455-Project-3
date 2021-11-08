@@ -346,7 +346,13 @@ ExceptionHandler(ExceptionType which)
 
 		currentThread->space->pageTable[badVPage].physicalPage = freePage;
 		currentThread->space->pageTable[badVPage].valid = TRUE;
-		// printf("Here is the numPageFaults: %i\n Here is the bad address: %i\n Here is the bad page: %i\n", stats->numPageFaults, badVAddr, badVPage);
+
+
+
+		printf("Here is the numPageFaults: %i\n Here is the bad address: %i\n Here is the bad page: %i\n", stats->numPageFaults, badVAddr, badVPage);
+
+		currentThread->space->execFile->ReadAt(&(machine->mainMemory[freePage*PageSize]), PageSize, badVPage*PageSize);
+
 
 		break;
 		// End code changes by JOSHUA PLAUCHE // -------------------------------

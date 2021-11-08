@@ -70,6 +70,10 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     NoffHeader noffH;
     unsigned int i, size;
 
+		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+		execFile = executable;
+		// End code changes by JOSHUA PLAUCHE // -------------------------------
+
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
