@@ -297,10 +297,10 @@ ExceptionHandler(ExceptionType which)
 			{
 				// Begin code changes by DUSTIN SIMONEAUX // --------------------
 				//int freePage = bitMap->Find();
-				//for (int z = 0; z < currentThread->space->getPages; z++)
-				//{
-				//		bitMap->Clear(machine->pageTable[z].physicalPage); // clear bits used by exiting thread
-				//}
+				/*for (int z = 0; z < currentThread->space->getPages(); z++)
+				{
+						bitMap->Clear(machine->pageTable[z].physicalPage); // clear bits used by exiting thread
+				} */
 				
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
