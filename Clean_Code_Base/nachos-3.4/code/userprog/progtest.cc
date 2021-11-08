@@ -19,10 +19,11 @@
 // 	Run a user program.  Open the executable, load it into
 //	memory, and jump to it.
 //----------------------------------------------------------------------
+int runs = 0;
 void
 StartProcess(char *filename)
 {
-    //int freePage = bitMap->Find();
+    runs = runs + 1;
     
     OpenFile *executable = fileSystem->Open(filename);
 	
@@ -33,38 +34,32 @@ StartProcess(char *filename)
 	    printf("Unable to open file %s\n", filename);
 	    return;
     }
-
+    
     // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-	    // passing 0 as argument as this is the location for main thread
+
+    // passing 0 as argument as this is the location for main thread
     space = new AddrSpace(executable, 0);
-    // End code changes by DUSTIN SIMONEAUX // ------------------------------------
     
     currentThread->space = space;
     
     if (executable)
     {
-
-   
         delete executable;			// close file
-
+        
         space->InitRegisters();		// set the initial register values
         space->RestoreState();		// load page table register
-        //bitMap->Clear(8);
-        machine->Run();			// jump to the user progam
         
-        // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
-        //ASSERT(FALSE);
-        if (TRUE)             // machine->Run never returns;
+        machine->Run();			// jump to the user progam
+                                // machine->Run never returns;
+        // Replaced ASSERT
+        if (TRUE)             
         {   printf("Error: Non-normal exit!");        
             Exit(-1);
         }
     }	
-    for (int f = 0; f < currentThread->space->getNumPages(); f++)
-		{
-			bitMap->Clear(f);
-        }		
-	// the address space exits by doing the syscall "exit"
-	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
+    // the address space exits by doing the syscall "exit"
+
+	// End code changes by DUSTIN SIMONEAUX   // ----------------------------------			 
 }
 
 // Data structures needed for the console test.  Threads making

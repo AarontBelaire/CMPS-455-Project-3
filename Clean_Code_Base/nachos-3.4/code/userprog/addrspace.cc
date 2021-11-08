@@ -61,17 +61,16 @@ SwapHeader (NoffHeader *noffH)
 //
 //	"executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
-
+int freePage;
 // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
 AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 // End code changes by DUSTIN SIMONEAUX // ---------------------------------
 
 {
+    
     NoffHeader noffH;
     unsigned int i, size;
-    int tid;
-    int startPage = 0;
-    
+    int threadNum;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -79,13 +78,13 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     	SwapHeader(&noffH);
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-    //ASSERT(noffH.noffMagic == NOFFMAGIC)
+
+    // Replaced ASSERT
     if (noffH.noffMagic != NOFFMAGIC) 
     {
         printf("Exiting Error: Not in NOFF format.\n");
         Exit(-1);
     }
-    
     // End code changes by DUSTIN SIMONEAUX // -------------------------------
 
     // how big is address space?
@@ -96,84 +95,47 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     size = numPages * PageSize;
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-    //printf("\n\nAddrSpace: Number of pages: %d\n", numPages);
-    //printf("AddrSpace: Number of physical pages: %d\n", NumPhysPages);
-    printf("AddrSpace: Thread ID: %d\n", currentThread->getID());
+    //printf("\n\nNumber of pages: %d\n", numPages); // for debugging number of pages
     
     if (numPages >= NumPhysPages)    
 	{//check not trying to run anything too big - until we have virtual memory  
         printf("Error: Not enough memory to run.\n");
         Exit(-1); 
         delete pageTable; 
-    }					                    
-    
-   
-    //printf("Initializing address space, num pages %d, size %d\n", 
-	//				numPages, size);
-    // End code changes by DUSTIN SIMONEAUX // -------------------------------
+    }					
 
     // first, set up the translation 
     else {
-
-    
-        int temp = 0;
+        //DEBUG("a", "Initializing address space, num pages %d, size %d\n", numPages, size);
         pageTable = new TranslationEntry[numPages];
         Thread *IPT[NumPhysPages];
         
         for (i = 0; i < numPages; i++) {
-            int freePage = bitMap->Find();
-                // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-                
-            pageTable[i].virtualPage = i;
-            if (freePage != -1) {
-                startPage += 1;
-            }
-            //if (freePage  ) 
-            //{
-				//for (int k = 0; k < currentThread->space->getNumPages(); k++) 
-				//{
-					//freePage = bitMap->Find();
-				//}
-					
-            //}
-            printf("\nFreePages: %d\n", freePage);
+            freePage = bitMap->Find();
             
+            //printf("\nFreePages: %d\n", freePage); // For debugging freePages
             if (freePage == -1) 
             {
-                    
-                    tid = -1 * (threadID + 1);
-                    printf("AddrSpace: Initialization failed (freePage = -1).\n");
-                    printf("AddrSpace: Error code: %d\n", tid);
-                    
-                    if (executable) {
-                        delete executable;
-                    }
+                    threadNum = -1 * (threadID + 1);
+                    printf("Initialization failed (freePage = -1).\nError: %d\n", threadNum);
+                    printf("Error: %d\n", threadNum);               
             }
-            
-            pageTable[i].physicalPage = freePage; 
-            //IPT[pageTable[i].physicalPage] = currentThread;
-            
+            pageTable[i].virtualPage = i;
+            pageTable[i].physicalPage = freePage;            
             pageTable[i].valid = TRUE; 
             pageTable[i].use = FALSE;
             pageTable[i].dirty = FALSE;
-            pageTable[i].readOnly = FALSE;  
-            
-            
-                // End code changes by DUSTIN SIMONEAUX // ---------------------------------
+            pageTable[i].readOnly = FALSE;    
         }
-        bitMap->Print();
-        //bitMap->Clear(pageTable[i].physicalPage);
-        //int freePage = bitMap->Find();
-        //bitMap->Clear(pageTable->physicalPage);
+        //bitMap->Print();      // Print statement for debugging bitmap
         
-        
-        
-    // zero out the entire address space, to zero the unitialized data segment 
-    // and the stack segment
-        //bzero(machine->mainMemory, size);
+        // zero out the entire address space, to zero the unitialized data segment 
+        // and the stack segment
+
         memset(machine->mainMemory, 0, size);
-        char buffer[size];
-    // then, copy in the code and data segments into memory
+        // End code changes by DUSTIN SIMONEAUX // ---------------------------------
+
+        // then, copy in the code and data segments into memory
         if (noffH.code.size > 0) {
             DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
                 noffH.code.virtualAddr, noffH.code.size);
@@ -187,7 +149,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
                 noffH.initData.size, noffH.initData.inFileAddr);
         }
     }
-    //machine->PrintMemory();
+    //machine->PrintMemory();       // For debugging memory
 }
 
 //----------------------------------------------------------------------
@@ -197,13 +159,28 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
 AddrSpace::~AddrSpace()
 {
-   delete pageTable;
+// Begin code changes by DUSTIN SIMONEAUX // ---------------------------
+    for(int i = 0; i < numPages; i++) {
+        if(pageTable[i].valid) {
+            DEBUG('v', "Clear physical page #%d\n", pageTable[i].physicalPage);
+            bitMap->Clear(pageTable[i].physicalPage);
+        }
+    }         
+    delete pageTable;
 }
 
-unsigned int AddrSpace::getNumPages() 
+unsigned int 
+AddrSpace::getPages() 
 {
     return numPages;
 }
+unsigned int 
+AddrSpace::getFreePages() 
+{
+    return freePage;
+}
+// End code changes by DUSTIN SIMONEAUX // -----------------------------
+
 
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
@@ -245,8 +222,14 @@ AddrSpace::InitRegisters()
 //	For now, nothing!
 //----------------------------------------------------------------------
 
+// Begin code changes by DUSTIN SIMONEAUX // ---------------------------
 void AddrSpace::SaveState() 
-{}
+{
+    // Saw something about this in the documentation but
+        // I'm not sure if it gets used.
+    currentThread->SaveUserState();
+}
+// End code changes by DUSTIN SIMONEAUX   // ---------------------------
 
 //----------------------------------------------------------------------
 // AddrSpace::RestoreState

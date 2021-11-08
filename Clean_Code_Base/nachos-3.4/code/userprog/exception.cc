@@ -93,7 +93,12 @@ void processCreator(int arg)	// Used when a process first actually runs, not whe
 	}
 
     machine->Run();			// jump to the user progam
-    ASSERT(FALSE);			// machine->Run never returns;
+    //ASSERT(FALSE);			// machine->Run never returns;
+	if (TRUE) 
+	{
+		printf("ERROR: machine->Run() did not proceed for some reason.");
+		Exit(-1);
+	}
  }
 
 void
@@ -160,7 +165,14 @@ ExceptionHandler(ExceptionType which)
 			break;
 		case SC_Exec :	// Executes a user process inside another user process.
 		   {
-				
+			    
+			    // Clears room for next thread to run
+				//printf("thread: %d\n", currentThread->getID()); // For debugging thread number
+					for (int k = 0; k < currentThread->space->getPages(); k++) 
+					{	
+						bitMap->Clear(k);	
+					}
+				// End code changes by DUSTIN SIMONEAUX ----------------------------	
 				printf("SYSTEM CALL: Exec, called by thread %i.\n",currentThread->getID());
 
 				// Retrieve the address of the filename
@@ -173,7 +185,6 @@ ExceptionHandler(ExceptionType which)
 					filename[m] = NULL;
 
 				// Free up allocation space and get the file name
-				//int freePage = bitMap->Find();
 				if(!machine->ReadMem(fileAddress,1,&j))return;
 				i = 0;
 				while(j != 0)
@@ -184,6 +195,7 @@ ExceptionHandler(ExceptionType which)
 					if(!machine->ReadMem(fileAddress,1,&j))return;
 				}
 				// Open File
+				
 				OpenFile *executable = fileSystem->Open(filename);
 				
 				if (executable == NULL) 
@@ -197,10 +209,9 @@ ExceptionHandler(ExceptionType which)
 				// Calculate needed memory space
 				AddrSpace *space;
 				
-					// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
+				// Begin code changes by DUSTIN SIMONEAUX // --------------------------------
 				space = new AddrSpace(executable, threadID);
-				
-					// End code changes by DUSTIN SIMONEAUX // ----------------------------------
+				// End code changes by DUSTIN SIMONEAUX // ----------------------------------
 
 				delete executable;
 				// Do we have enough space?
@@ -220,18 +231,6 @@ ExceptionHandler(ExceptionType which)
 					machine->WriteRegister(2, -1 * (threadID + 1));	// Return an error code
 					currentThread->killNewChild = true;	// Reset our variable
 				}
-
-				/*  
-				int pc; 
-				pc = machine->ReadRegister(PCReg); 
-
-				machine->WriteRegister(PrevPCReg,pc); 
-				pc = machine->ReadRegister(NextPCReg); 
-				machine->WriteRegister(PCReg,pc); 
-
-				pc += 4; 
-				machine->WriteRegister(NextPCReg,pc);
-				*/
 				
 				break;	// Get out.*/
 
@@ -266,42 +265,22 @@ ExceptionHandler(ExceptionType which)
 			}
 			case SC_Exit :	// Exit a process.
 			{
-				//int freePage = bitMap->Find();
-				
-				//bitMap->Clear(AddrSpace.freePage);
-				
-				
-				//bitMap->Clear(arg2);
 				printf("SYSTEM CALL: Exit, called by thread %i.\n",currentThread->getID());
 				if(arg1 == 0)	// Did we exit properly?  If not, show an error message.
 				{
-					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());
-					
-					
+					printf("Thank Talos! Process %i exited normally!\n", currentThread->getID());	
 				}
 				else
 					printf("ERROR: Process %i exited abnormally!\n", currentThread->getID());
 				
-				//machine->PrintMemory();	
-				
+				//machine->PrintMemory();		// Debugging memory
+					
 				if(currentThread->space) 
-				{	// Delete the used memory from the process.
-					
-					
-					//Thread *IPT[NumPhysPages];
-					
-					printf("thread: %d\n", currentThread->space->getNumPages());
-					for (int k = 0; k < currentThread->space->getNumPages(); k++) 
-					{
-						bitMap->Clear(k);
-					}
-						
-					
-					bitMap->Print();
+				{	// Delete the used memory from the process.										
+					bitMap->Print();		// Debugging bitmap
 					delete currentThread->space;
 				}
 				currentThread->Finish();	// Delete the thread.
-				
 				
 				break;
 			}
@@ -317,17 +296,24 @@ ExceptionHandler(ExceptionType which)
 
                break;
 			}
-           default :
+           default:
 	       //Unprogrammed system calls end up here
 			   printf("SYSTEM CALL: Unknown, called by thread %i.\n",currentThread->getID());
                break;
            }         // Advance program counters, ends syscall switch
            break;
 
-	case ReadOnlyException :
+	case ReadOnlyException:
 		printf("ERROR: ReadOnlyException, called by thread %i.\n",currentThread->getID());
 		if (currentThread->getName() == "main")
-			ASSERT(FALSE);  //Not the way of handling an exception.
+			//ASSERT(FALSE);  //Not the way of handling an exception.
+			// Begin code changes by DUSTIN SIMONEAUX // ---------------------------
+			if (TRUE) 
+			{
+				printf("ERROR: BAD EXIT FROM READ ONLY EXCEPTION.");
+				Exit(-1);
+			}
+			// End code changes by DUSTIN SIMONEAUX   // ---------------------------
 		if(currentThread->space)	// Delete the used memory from the process.
 			delete currentThread->space;
 		currentThread->Finish();	// Delete the thread.
