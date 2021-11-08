@@ -21,6 +21,9 @@
 #include "addrspace.h"
 #include "noff.h"
 #include "bitmap.h"
+// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+// #include "filesys.h"
+// End code changes by JOSHUA PLAUCHE // -------------------------------
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -132,11 +135,29 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
             // End code changes by DUSTIN SIMONEAUX // ---------------------------------
     }
 
+		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+		char *name = new char[20];
+		sprintf(name, "%d.swap", thread_id);
+
+		sfileName = name;
+
+		fileSystem->Create(name, size);
+
+		OpenFile *swapFile = fileSystem->Open(name);
+
+		char *swbuffer = new char[noffH.code.size + noffH.initData.size + noffH.uninitData.size];
+
+		executable->ReadAt(swbuffer, noffH.code.size + noffH.initData.size + noffH.uninitData.size, sizeof(noffH));
+
+		swapFile->WriteAt(swbuffer, noffH.code.size + noffH.initData.size + noffH.uninitData.size, 0);
+
+		delete swbuffer;
+		delete swapFile;
+
     //bitMap->Clear(pageTable[i].physicalPage);
     //int freePage = bitMap->Find();
     //bitMap->Clear(pageTable->physicalPage);
 
-		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
 		//bitMap->Print();
 		// End code changes by JOSHUA PLAUCHE // -------------------------------
 
@@ -161,7 +182,7 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 		// 	noffH.initData.size, noffH.initData.inFileAddr);
     // }
     //machine->PrintMemory();
-		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+		// End code changes by JOSHUA PLAUCHE // -------------------------------
 }
 
 //----------------------------------------------------------------------

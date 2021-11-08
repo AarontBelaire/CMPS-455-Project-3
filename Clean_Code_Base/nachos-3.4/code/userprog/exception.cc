@@ -103,6 +103,7 @@ ExceptionHandler(ExceptionType which)
 	int badVAddr;
 	int badVPage;
 	int freePage;
+	OpenFile *swapFileExec;
 	// End code changes by JOSHUA PLAUCHE // -------------------------------
 
 	int type = machine->ReadRegister(2);
@@ -269,6 +270,7 @@ ExceptionHandler(ExceptionType which)
 			}
 			case SC_Exit :	// Exit a process.
 			{
+				// Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 				//int freePage = bitMap->Find();
 
 				//bitMap->Clear(AddrSpace.freePage);
@@ -286,9 +288,14 @@ ExceptionHandler(ExceptionType which)
 				//freePage = bitMap->Find();
 
 				if(currentThread->space)	// Delete the used memory from the process.
+				{
+					// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+					fileSystem->Remove(currentThread->space->sfileName);
+					// End code changes by JOSHUA PLAUCHE // -------------------------------
 					delete currentThread->space;
+				}
 				currentThread->Finish();	// Delete the thread.
-
+				// End code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 
 				break;
 			}
@@ -320,8 +327,7 @@ ExceptionHandler(ExceptionType which)
 		currentThread->Finish();	// Delete the thread.
 		break;
 
-// Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
-
+		// Begin code changes (incomplete) by DUSTIN SIMONEAUX // --------------------
 
 	case PageFaultException :
 		// 1.)
@@ -329,6 +335,7 @@ ExceptionHandler(ExceptionType which)
 		//	variable to keep track of it). There is already stats->numPageFaults
 		//	defined which you can simply increase during page fault.
 
+		// End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
 
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
 		stats->numPageFaults++;
@@ -341,23 +348,23 @@ ExceptionHandler(ExceptionType which)
 		if (freePage == -1)
 		{
 			printf("There are no available pages terminating nachOS\n");
-			Exit(0);
+			Exit(1);
 		}
 
-		currentThread->space->pageTable[badVPage].physicalPage = freePage;
-		currentThread->space->pageTable[badVPage].valid = TRUE;
+		machine->pageTable[badVPage].physicalPage = freePage;
+		machine->pageTable[badVPage].valid = TRUE;
 
 
+		// printf("Here is the numPageFaults: %i\n Here is the bad address: %i\n Here is the bad page: %i\n", stats->numPageFaults, badVAddr, badVPage);
 
-		printf("Here is the numPageFaults: %i\n Here is the bad address: %i\n Here is the bad page: %i\n", stats->numPageFaults, badVAddr, badVPage);
+		swapFileExec = fileSystem->Open(currentThread->space->sfileName);
 
-		currentThread->space->execFile->ReadAt(&(machine->mainMemory[freePage*PageSize]), PageSize, badVPage*PageSize);
+		swapFileExec->ReadAt(&(machine->mainMemory[freePage*PageSize]), PageSize, badVPage*PageSize);
 
+		delete swapFileExec;
 
 		break;
 		// End code changes by JOSHUA PLAUCHE // -------------------------------
-
-// End code changes (incomplete) by DUSTIN SIMONEAUX // -----------------------
 
 	case BusErrorException :
 		printf("ERROR: BusErrorException, called by thread %i.\n",currentThread->getID());

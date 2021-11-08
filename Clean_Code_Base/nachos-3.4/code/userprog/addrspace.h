@@ -39,14 +39,12 @@ class AddrSpace {
     void RestoreState();		// info on a context switch
 
     // Begin code changes by JOSHUA PLAUCHE // ----------------------------------
-    TranslationEntry *pageTable;
     OpenFile *execFile;
+    char *sfileName;
     // End code changes by JOSHUA PLAUCHE // ----------------------------------
 
   private:
-    // Begin code changes by JOSHUA PLAUCHE // ----------------------------------
-    // TranslationEntry *pageTable;	// Assume linear page table translation for now!
-    // End code changes by JOSHUA PLAUCHE // ----------------------------------
+    TranslationEntry *pageTable;	// Assume linear page table translation for now!
     unsigned int numPages;		// Number of pages in the virtual address space
 
 
