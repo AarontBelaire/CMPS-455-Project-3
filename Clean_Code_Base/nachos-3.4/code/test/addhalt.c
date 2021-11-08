@@ -4,10 +4,13 @@ int main() {
 	Write("\nExec Adder 1\n", 20, ConsoleOutput);
 	Join(Exec("../test/adder"));
 	Write("\nExec Adder 2\n", 20, ConsoleOutput);
-	(Exec("../test/adder"));
+	Join(Exec("../test/adder"));
 	Write("\nExec Adder 3\n", 20, ConsoleOutput);
-	Join(Exec("../test/halt"));
+	(Exec("../test/adder"));
 	Write("\nExec Adder 4\n", 20, ConsoleOutput);
-	Exec("../test/adder");
-	Exit(0);
+	Join(Exec("../test/adder"));
+	Write("\nExec Halt 1\n", 20, ConsoleOutput);
+	Join(Exec("../test/halt"));
+	
+
 }

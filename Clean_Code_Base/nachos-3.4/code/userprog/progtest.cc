@@ -19,12 +19,16 @@
 // 	Run a user program.  Open the executable, load it into
 //	memory, and jump to it.
 //----------------------------------------------------------------------
-int runs = 0;
+
+// Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+int runs = 0; // debugging variable for simply keeping track of 
+              // each time StartProcess is executed
 void
 StartProcess(char *filename)
 {
     runs = runs + 1;
-    
+// End code changes by DUSTIN SIMONEAUX   // ----------------------------------
+
     OpenFile *executable = fileSystem->Open(filename);
 	
     AddrSpace *space;
@@ -34,10 +38,9 @@ StartProcess(char *filename)
 	    printf("Unable to open file %s\n", filename);
 	    return;
     }
-    
-    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
 
-    // passing 0 as argument as this is the location for main thread
+    // Begin code changes by DUSTIN SIMONEAUX // ----------------------------------
+	// passing 0 as argument as this is the location for main thread
     space = new AddrSpace(executable, 0);
     
     currentThread->space = space;
@@ -45,21 +48,21 @@ StartProcess(char *filename)
     if (executable)
     {
         delete executable;			// close file
-        
+
         space->InitRegisters();		// set the initial register values
         space->RestoreState();		// load page table register
         
-        machine->Run();			// jump to the user progam
-                                // machine->Run never returns;
+        machine->Run();			    // jump to the user progam
+        
         // Replaced ASSERT
-        if (TRUE)             
+        if (TRUE)                   // machine->Run never returns;
         {   printf("Error: Non-normal exit!");        
             Exit(-1);
         }
-    }	
-    // the address space exits by doing the syscall "exit"
-
-	// End code changes by DUSTIN SIMONEAUX   // ----------------------------------			 
+    }			
+	// the address space exits by doing the syscall "exit"
+    
+	// End code changes by DUSTIN SIMONEAUX // ------------------------------------			 
 }
 
 // Data structures needed for the console test.  Threads making
