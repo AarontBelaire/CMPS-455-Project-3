@@ -65,10 +65,16 @@ int freePage;
 // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
 AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 // End code changes by DUSTIN SIMONEAUX   // -------------------------------
+
 {
+
     NoffHeader noffH;
     unsigned int i, size;
     int threadNum;
+
+    // Begin code changes by JOSHUA PLAUCHE // -------------------------------
+    execFile = executable;             /* Creates separate variable to hold executable */
+    // End code changes by JOSHUA PLAUCHE   // -------------------------------
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
@@ -76,35 +82,67 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
     	SwapHeader(&noffH);
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
-    if (noffH.noffMagic != NOFFMAGIC){// Replaced ASSERT
+    
+    // Replaced ASSERT
+    if (noffH.noffMagic != NOFFMAGIC)
+    {
         printf("Exiting Error: Not in NOFF format.\n");
         Exit(-1);
     }
     // End code changes by DUSTIN SIMONEAUX   // -------------------------------
 
-    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; // how big is address space?
+    // how big is address space?
+    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize;
 
-    numPages = divRoundUp(size, PageSize); // Increase the size to leave room for the stack
+    // we need to increase the size to leave room for the stack
+    numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
     // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+    //printf("\n\nNumber of pages: %d\n", numPages);  // for debugging number of pages
+    //printf("Thread ID: %d\n", currentThread->getID()); // for debugging thread number
 
     // Removed ASSERT
     if (noffH.code.virtualAddr >= NumPhysPages)
 	{//check not trying to run anything too big - until we have virtual memory
         printf("Error: Not enough memory to run.\n");
+        Exit(-1); 
+        delete pageTable; 
+    }					                    
+    
+    //bitMap->Print();
+    //printf("Initializing address space, num pages %d, size %d\n", 
+	//				numPages, size);
+    // End code changes by DUSTIN SIMONEAUX // -------------------------------
+
+    // first, set up the translation 
+    // Thread *IPT[NumPhysPages];
+    // IPT[0] = bitMap->Find();
+    /* pageTable = new TranslationEntry[numPages];
+    for (i = 0; i < numPages; i++) {
+            // Begin code changes by DUSTIN SIMONEAUX // -------------------------------
+            
+	    pageTable[i].virtualPage = i;	
+        pageTable[i].physicalPage = bitMap->Find(); 
+        
+        pageTable[i].valid = TRUE; 
+        //pageTable[i].valid = FALSE; // CHANGED FROM TRUE
+            // End code changes by DUSTIN SIMONEAUX // ---------------------------------
+        //welcome to good burger home of the good burger can i take your order
         Exit(-1);
         delete pageTable;
-    }
+    }*/
+
     //DEBUG('a', "Initializing address space, num pages %d, size %d\n", numPages, size);
 
-    pageTable = new TranslationEntry[numPages]; // First, set up the translation.
-    Thread *IPT[NumPhysPages];                  // Creation of inverted page table thread ref.
+    // first, set up the translation
+    pageTable = new TranslationEntry[numPages];
+    Thread *IPT[NumPhysPages]; // Creation of inverted page table thread ref.
 
     for (i = 0; i < numPages; i++) 
     {
-        //freePage = bitMap->Find();                // Initializes bitmap to freePage.
-        //printf("\nFreePages: %d\n", freePage);    // For debugging freePages.
+        //freePage = bitMap->Find(); // initializes bitmap to freePage
+        //printf("\nFreePages: %d\n", freePage); // For debugging freePages
         if (freePage == -1)
         {
             threadNum = -1 * (threadID + 1);
@@ -113,14 +151,15 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
         }
 	    pageTable[i].virtualPage = i;
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
+        //pageTable[i].physicalPage = bitMap->Find();
         pageTable[i].valid = FALSE;
-		// End code changes by JOSHUA PLAUCHE   // -------------------------------
+		// End code changes by JOSHUA PLAUCHE // -------------------------------
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;
     }
-    //bitMap->Print();                      // Print statement for debugging bitmap
-    //memset(machine->mainMemory, 0, size); // Zeros out memory
+    //bitMap->Print();      // Print statement for debugging bitmap
+    //memset(machine->mainMemory, 0, size); // zeros out memory
     // End code changes by DUSTIN SIMONEAUX   // ---------------------------------
 
 		// Begin code changes by JOSHUA PLAUCHE // -------------------------------
@@ -132,7 +171,8 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 
 		OpenFile *swapFile = fileSystem->Open(name); // opens swapfile
 
-		char *swbuffer = new char[noffH.code.size + noffH.initData.size + noffH.uninitData.size]; // creates buffer for swapfile
+        // creates buffer for swapfile
+		char *swbuffer = new char[noffH.code.size + noffH.initData.size + noffH.uninitData.size];
 
         // Reading and writing data and code of swapfile
 		executable->ReadAt(swbuffer, noffH.code.size + noffH.initData.size + noffH.uninitData.size, sizeof(noffH));
@@ -177,14 +217,14 @@ AddrSpace::AddrSpace(OpenFile *executable, int thread_id)
 AddrSpace::~AddrSpace()
 {
 // Begin code changes by DUSTIN SIMONEAUX // ---------------------------
-    /* for (int i = 0; i < numPages; i++)
-    {
-        if (pageTable[i].valid)
-        {
-            DEBUG('v', "Clear physical page #%d\n", pageTable[i].physicalPage);
-            bitMap->Clear(pageTable[i].physicalPage);
-        }
-    }*/
+    //for (int i = 0; i < numPages; i++)
+    //{
+    //    if (pageTable[i].valid)
+    //    {
+    //        DEBUG('v', "Clear physical page #%d\n", pageTable[i].physicalPage);
+    //        bitMap->Clear(pageTable[i].physicalPage);
+    //    }
+    //}
     delete pageTable;
 }
 

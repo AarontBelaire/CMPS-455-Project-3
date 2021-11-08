@@ -37,14 +37,13 @@ extern BitMap *bitMap; // Declaring a global bitmap variable
 // Begin code changes by Jeremy St. Julien // ----------------------------------
 extern int memChoice;
 extern List *pageList;
-extern Thread* IPT2 [32];
+extern Thread* IPT [32];
 extern bool output;
 // End code changes by Jeremy St. Julien   // ----------------------------------
-
 #ifdef USER_PROGRAM
 #include "machine.h"
+extern List* activeThreads;
 extern Machine* machine;	// user program memory and registers
-extern List* activeThreads;	// active thread list for process management
 extern int threadID;	// unique process id
 #endif
 

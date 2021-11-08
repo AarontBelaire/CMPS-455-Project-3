@@ -25,7 +25,7 @@ BitMap *bitMap = new BitMap(NumPhysPages);
 // Begin code changes by Jeremy St. Julien
 int memChoice;
 List *pageList = new List();
-Thread* IPT2 [32];
+Thread* IPT [32];
 bool output = FALSE;
 // End code changes by Jeremy St. Julien
 #ifdef FILESYS_NEEDED
@@ -131,17 +131,17 @@ Initialize(int argc, char **argv)
         if (*(argv+1) == NULL)
         {
             memChoice = 0;
-            printf ("\n\n+++Disabling Virtual Memory. Using Demand Paging instead+++\n\n");
+            printf ("Disabling Virtual Memory, will use Demand Paging\n");
         }
 
         else 
         {
             memChoice = atoi(*(argv+1));
-            if (memChoice == 1) printf("+-+Using FIFO Page Replacement+-+\n");
+            if (memChoice == 1) printf("Using FIFO Page Replacement\n");
 				 
-			else if (memChoice == 2) printf("-+-Using Random Page Replacement-+-\n");
+			else if (memChoice == 2) printf("Using Random Page Replacement\n");
             
-			else printf("\n\n+++Disabling Virtual Memory. Using Demand Paging instead+++\n\n");
+			else printf("Disabling Virtual Memory, will use Demand Pagin\n");
               
         }
 	}
