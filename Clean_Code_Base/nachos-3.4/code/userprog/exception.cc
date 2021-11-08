@@ -391,8 +391,8 @@ ExceptionHandler(ExceptionType which)
 		freePage = bitMap->Find();
 		if (freePage == -1)
 		{
-			printf("ERROR: There are no available pages. Exiting...\n");
-			Exit(1);
+			printf("\nERROR: There are no available pages. Exiting...\n");
+			Exit(-1);
 		}
 		// End code changes by DUSTIN SIMONEAUX and JOSHUA PLAUCHE   // --------------------
 

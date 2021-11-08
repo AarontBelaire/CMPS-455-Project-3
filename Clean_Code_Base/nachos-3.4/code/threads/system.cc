@@ -131,17 +131,17 @@ Initialize(int argc, char **argv)
         if (*(argv+1) == NULL)
         {
             memChoice = 0;
-            printf ("Disabling Virtual Memory, will use Demand Paging");
+            printf ("\n\n+++Disabling Virtual Memory. Using Demand Paging instead+++\n\n");
         }
 
         else 
         {
             memChoice = atoi(*(argv+1));
-            if (memChoice == 1) printf("Using FIFO Page Replacement");
+            if (memChoice == 1) printf("+-+Using FIFO Page Replacement+-+\n");
 				 
-			else if (memChoice == 2) printf("Using Random Page Replacement");
+			else if (memChoice == 2) printf("-+-Using Random Page Replacement-+-\n");
             
-			else printf("Disabling Virtual Memory, will use Demand Paging");
+			else printf("\n\n+++Disabling Virtual Memory. Using Demand Paging instead+++\n\n");
               
         }
 	}

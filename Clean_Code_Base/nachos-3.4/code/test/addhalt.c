@@ -15,5 +15,6 @@ int main() {
 	Write("\n   .\n", 10, ConsoleOutput);
 	Write("\n   .\n", 10, ConsoleOutput);
 	Write("\nCommencing Exit Process\n\n", 30, ConsoleOutput);
+	//(Exec("../test/addhalt"));
 	Exit(0);
 }
